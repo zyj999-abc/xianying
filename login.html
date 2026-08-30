@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows XP — 登录</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Tahoma,"Microsoft YaHei",sans-serif; }
+  body, html { width:100%; height:100%; overflow:hidden; }
+  body { background:#5a7edc url('assets/img/shopwindow.jpg') no-repeat center center fixed; background-size:cover; }
+  .bar-top, .bar-bot { position:absolute; width:100%; height:80px; background:linear-gradient(to bottom,#003399,#0055d4); z-index:10; }
+  .bar-top { top:0; border-bottom:2px solid #ff9900; }
+  .bar-bot { bottom:0; border-top:2px solid #ff9900; }
+  .wrap { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:780px; max-width:94vw; height:380px; display:flex; align-items:center; justify-content:center;
+    background:rgba(90,126,220,.35); border-radius:10px; backdrop-filter:blur(2px); }
+  .left { text-align:right; color:#fff; text-shadow:2px 2px 4px rgba(0,0,0,.7); }
+  .left h1 { font-size:34px; font-weight:normal; font-style:italic; }
+  .left p { margin-top:8px; font-size:15px; }
+  .div { width:2px; height:240px; margin:0 46px; background:linear-gradient(to bottom,transparent,#fff,transparent); }
+  .right { display:flex; gap:14px; align-items:flex-start; }
+  .ava { width:62px; height:62px; border:2px solid #fff; border-radius:5px; background:#d8e4f8 url('assets/img/shen.jpg') center/cover; box-shadow:2px 2px 5px rgba(0,0,0,.5); }
+  .uname { color:#fff; font-size:22px; font-weight:bold; margin-bottom:10px; text-shadow:1px 1px 3px rgba(0,0,0,.8); }
+  .row { display:flex; gap:5px; }
+  input { width:190px; height:28px; padding:0 6px; font-size:14px; border:2px solid #99b4d1; border-radius:3px; outline:none; -webkit-text-security:disc; }
+  input:focus { border-color:#0055d4; }
+  .go { width:28px; height:28px; background:linear-gradient(to bottom,#4cb849,#388e35); border:1px solid #fff; border-radius:4px;
+    color:#fff; font-size:15px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .hint { margin-top:12px; color:#d1e4ff; font-size:13px; text-shadow:1px 1px 2px rgba(0,0,0,.8); }
+  .err { margin-top:6px; color:#ff6b6b; font-size:13px; font-weight:bold; visibility:hidden; text-shadow:1px 1px 2px rgba(0,0,0,.8); }
+</style>
+</head>
+<body>
+  <div class="bar-top"></div>
+  <div class="wrap">
+    <div class="left"><h1>Windows XP</h1><p>要开始，请输入您的密码</p></div>
+    <div class="div"></div>
+    <div class="right">
+      <div class="ava"></div>
+      <div>
+        <div class="uname">沈明礼</div>
+        <div class="row">
+          <input type="text" id="pw" placeholder="输入密码" maxlength="12" autocomplete="off">
+          <button class="go" id="go">➔</button>
+        </div>
+        <div class="hint">密码提示：店里最有纪念意义的那一天。</div>
+        <div class="err" id="err">密码不正确。请键入您的密码。</div>
+      </div>
+    </div>
+  </div>
+  <div class="bar-bot"></div>
+
+<script src="shared/core.js"></script>
+<script>
+  const pw = document.getElementById('pw'), err = document.getElementById('err');
+
+  /* 开张日期：1962-07-01（线索藏在 IE 缓存的 2006 年新闻里） */
+  function tryLogin() {
+    const v = pw.value.trim();
+    if (!v) { err.style.visibility = 'visible'; return; }
+    BruteGuard.tryGate(v,
+      ['19620701', '620701'],
+      () => { err.style.visibility = 'hidden'; XY.flag('login', true); XY.save();
+              document.body.style.transition = 'opacity .8s'; document.body.style.opacity = 0;
+              setTimeout(() => location.href = 'desktop.html', 800); },
+      (left) => { err.textContent = '密码不正确。还可尝试 ' + left + ' 次。'; err.style.visibility = 'visible'; pw.value = ''; pw.focus(); },
+      (sec) => { err.textContent = '系统已锁定，请 ' + sec + ' 秒后再试。（密码的答案在这台机器的某条旧新闻里）';
+                 err.style.visibility = 'visible'; });
+  }
+  document.getElementById('go').addEventListener('click', tryLogin);
+  pw.addEventListener('keypress', e => { if (e.key === 'Enter') tryLogin(); });
+  pw.addEventListener('input', () => err.style.visibility = 'hidden');
+
+  /* 首次进入的提示 */
+  if (!XY.flag('login')) {
+    setTimeout(() => {
+      const m = showModal(`
+        <h3>里屋 · 旧电脑</h3>
+        <p>机器是 2006 年装的，师傅用它扫描底片、记台账。屏幕上蒙着薄灰，风扇声像喘气。</p>
+        <p style="margin-top:8px">登录界面写着师傅的名字。他的密码，你小时候听他念叨过——<b>"店里最有纪念意义的那一天"</b>。</p>
+        <p style="margin-top:8px;color:#555">（提示：桌面上的 <b>Internet Explorer</b> 里存着缓存网页，其中有一条 2006 年的本地新闻，也许记着那一天。）</p>
+        <div class="btn-row"><button class="xp-btn" id="okk">按 下电源键</button></div>
+      `);
+      m.el.querySelector('#okk').addEventListener('click', () => m.close());
+    }, 700);
+  }
+</script>
+</body>
+</html>
