@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>系统启动中</title>
+<style>
+  body, html { margin:0; height:100%; background:#000; overflow:hidden; font-family:"Courier New",monospace; }
+  #bios { color:#c8c8c8; font-size:15px; padding:24px 30px; line-height:1.7; }
+  #bios .lg { color:#eee; border:1px solid #888; display:inline-block; padding:6px 14px; font-size:12px; letter-spacing:2px; margin-bottom:16px; }
+  .bl { display:none; }
+  .cur { display:inline-block; width:9px; height:15px; background:#c8c8c8; animation:b .8s steps(1) infinite; vertical-align:-2px; }
+  @keyframes b { 50% { opacity:0; } }
+  #xp { display:none; position:absolute; inset:0; background:linear-gradient(160deg,#5a7edc 0%,#3b62b8 50%,#1c3d7a 100%);
+        flex-direction:column; align-items:center; justify-content:center; }
+  .lg-xp { text-align:center; margin-bottom:60px; }
+  .lg-xp .ms { color:#dcdcdc; font-family:"Trebuchet MS",sans-serif; font-size:20px; letter-spacing:1px; }
+  .lg-xp .t { font-family:"Trebuchet MS",sans-serif; }
+  .lg-xp .win { color:#fff; font-size:52px; font-style:italic; font-weight:bold; }
+  .lg-xp .xp5 { color:#ff9a19; font-size:52px; font-weight:bold; }
+  .lg-xp .pro { color:#dcdcdc; font-size:18px; letter-spacing:4px; }
+  .track { width:210px; height:16px; border:2px solid #b3c2d4; border-radius:5px; background:#000; overflow:hidden; position:relative; }
+  .bar { position:absolute; top:2px; bottom:2px; width:38px; border-radius:2px;
+         background:linear-gradient(to bottom,#2d55f4,#577df8,#2d55f4); animation:xp 1.6s linear infinite; }
+  @keyframes xp { from { left:-42px; } to { left:214px; } }
+  .cp { position:absolute; bottom:36px; width:100%; text-align:center; color:#dcdcdc; font-size:14px; font-family:"Trebuchet MS",sans-serif; }
+</style>
+</head>
+<body>
+  <div id="bios">
+    <div class="lg">PHOENIX BIOS</div>
+    <div class="bl">Award Modular BIOS v6.00PG, An Energy Star Ally</div>
+    <div class="bl">Copyright (C) 1984-2005, Award Software, Inc.</div>
+    <div class="bl"><br>Main Processor : Intel(R) Celeron(R) D 331, 2.66GHz</div>
+    <div class="bl">Memory Testing : <span id="mem">0</span>K OK</div>
+    <div class="bl"><br>Primary Master  : ST340014A  40GB</div>
+    <div class="bl">Primary Slave   : None</div>
+    <div class="bl">Secondary Master: LTR-48246S CD-RW</div>
+    <div class="bl"><br>Press DEL to enter SETUP</div>
+    <div class="bl"><br>Detecting IDE drives ... <span class="cur"></span></div>
+  </div>
+
+  <div id="xp">
+    <div class="lg-xp">
+      <div class="ms">Microsoft<span style="font-size:9px">®</span></div>
+      <div class="t"><span class="win">Windows</span><span class="xp5">xp</span></div>
+      <div class="pro">Professional</div>
+    </div>
+    <div class="track"><div class="bar"></div></div>
+    <div class="cp">Copyright © 1985-2005 Microsoft Corporation</div>
+  </div>
+
+<script>
+  const bl = document.querySelectorAll('.bl');
+  bl.forEach((el, i) => setTimeout(() => el.style.display = 'block', 150 + i * 260));
+  setTimeout(() => {
+    const m = document.getElementById('mem'); let v = 0;
+    const t = setInterval(() => { v += 65536; m.textContent = v; if (v >= 524288) { clearInterval(t); m.textContent = '524288'; } }, 60);
+  }, 1100);
+  setTimeout(() => {
+    document.getElementById('bios').style.display = 'none';
+    setTimeout(() => {
+      document.getElementById('xp').style.display = 'flex';
+      setTimeout(() => location.href = 'login.html', 4200);
+    }, 350);
+  }, 4200);
+</script>
+</body>
+</html>
