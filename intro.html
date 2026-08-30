@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>回店……</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+  body, html { width:100%; height:100%; overflow:hidden; background:#05060a; font-family:"KaiTi","楷体","SimSun",serif; }
+
+  /* 雨夜店景 */
+  .bg { position:absolute; inset:0; background:url('assets/img/shopinterior.jpg') center/cover no-repeat;
+        filter: brightness(.34) saturate(.7) contrast(1.1); animation: breathe 8s ease-in-out infinite alternate; }
+  @keyframes breathe { from { filter: brightness(.3) saturate(.7);} to { filter: brightness(.4) saturate(.75);} }
+
+  /* 雨刷玻璃 */
+  .glass { position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(105deg, transparent 0 46px, rgba(180,200,220,.028) 46px 50px); }
+  .vignette { position:absolute; inset:0; pointer-events:none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.72) 100%); }
+
+  #rain { position:absolute; inset:0; z-index:3; pointer-events:none; }
+
+  /* 字幕 */
+  .sub-wrap { position:absolute; bottom:13%; width:100%; text-align:center; z-index:10; padding:0 24px; }
+  .sub { font-size:22px; color:#e9e4da; letter-spacing:4px; line-height:2;
+    text-shadow: 1px 2px 6px rgba(0,0,0,.95), 0 0 12px rgba(0,0,0,.8); opacity:0; transition:opacity 1.4s; }
+
+  /* 开机交互 */
+  .act { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:20;
+    display:flex; flex-direction:column; align-items:center; gap:18px; opacity:0; pointer-events:none; transition:opacity 2s; }
+  .act.on { opacity:1; pointer-events:auto; }
+  .pwr {
+    background: linear-gradient(to bottom,#4b4f55,#2b2e33); color:#d8dce2; border:1px solid #8a8f96;
+    padding: 14px 34px; font-size:16px; letter-spacing:4px; cursor:pointer; border-radius:4px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.7), inset 0 1px 2px rgba(255,255,255,.25); font-family:"SimSun",serif;
+  }
+  .pwr:hover { filter:brightness(1.2); }
+  .pwr:active { transform:scale(.97); }
+  .note { color:#8f8a80; font-size:12px; letter-spacing:2px; font-family:"SimSun",serif; }
+
+  /* 断电黑屏 */
+  #black { position:fixed; inset:0; background:#000; z-index:99; display:none; }
+  #black.on { display:block; animation: flick .5s forwards; }
+  @keyframes flick { 0%{opacity:0} 20%{opacity:1} 45%{opacity:.15} 70%{opacity:1} 100%{opacity:1} }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="glass"></div>
+  <canvas id="rain"></canvas>
+  <div class="vignette"></div>
+
+  <div class="sub-wrap"><div class="sub" id="sub"></div></div>
+
+  <div class="act" id="act">
+    <button class="pwr" id="pwr">掀开防尘布，按下电源</button>
+    <div class="note">暖气片还温着。药水味没散。</div>
+  </div>
+
+  <div id="black"></div>
+
+<script>
+  /* ---------- 字幕 ---------- */
+  const lines = [
+    "师傅走后的第 37 天，我回来了。",
+    "拆迁办的通知贴在卷帘门上：十二月三十一号签约，一月五号进场拆除。",
+    "长明照相馆，一九六二年开张，到这个月底，正好六十二年半。",
+    "这一周，我得把店里的东西清完。",
+    "里屋那台旧电脑还亮过一次灯——师傅晚年在里面扫描底片、记台账。",
+    "他说过：『店里的一切，都在那台机器里。』"
+  ];
+  const subEl = document.getElementById('sub');
+  const actEl = document.getElementById('act');
+  let i = 0;
+  function play() {
+    if (i < lines.length) {
+      subEl.textContent = lines[i];
+      subEl.style.opacity = '1';
+      setTimeout(() => { subEl.style.opacity = '0'; setTimeout(() => { i++; play(); }, 1100); }, 3000);
+    } else {
+      actEl.classList.add('on');
+    }
+  }
+  setTimeout(play, 1400);
+
+  /* ---------- 雨（Canvas，无音频文件） ---------- */
+  const cv = document.getElementById('rain'), cx = cv.getContext('2d');
+  let W, H;
+  function rs() { W = cv.width = innerWidth; H = cv.height = innerHeight; }
+  rs(); addEventListener('resize', rs);
+  const drops = Array.from({ length: 170 }, () => ({
+    x: Math.random() * innerWidth, y: Math.random() * innerHeight,
+    l: 14 + Math.random() * 20, v: 11 + Math.random() * 12, o: .08 + Math.random() * .2
+  }));
+  (function loop() {
+    cx.clearRect(0, 0, W, H);
+    cx.lineWidth = 1;
+    drops.forEach(d => {
+      cx.strokeStyle = 'rgba(190,210,230,' + d.o + ')';
+      cx.beginPath(); cx.moveTo(d.x, d.y); cx.lineTo(d.x + 1.5, d.y + d.l); cx.stroke();
+      d.y += d.v; d.x += 1.1;
+      if (d.y > H) { d.y = -20; d.x = Math.random() * W; }
+    });
+    requestAnimationFrame(loop);
+  })();
+
+  /* ---------- 开机 ---------- */
+  document.getElementById('pwr').addEventListener('click', function () {
+    this.disabled = true; this.style.opacity = .5;
+    document.getElementById('black').classList.add('on');
+    setTimeout(() => location.href = 'boot.html', 900);
+  });
+</script>
+</body>
+</html>
