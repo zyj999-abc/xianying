@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结局 · 回声</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#07080b; color:#cfc9bd; font-family:"SimSun","宋体",serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; }
+  .wrap { max-width:660px; width:92%; padding:76px 0 60px; }
+  .fi { opacity:0; transform:translateY(18px); animation:up 2.6s ease forwards; }
+  @keyframes up { to { opacity:1; transform:none; } }
+  .d1{animation-delay:.5s}.d2{animation-delay:2s}.d3{animation-delay:3.8s}.d4{animation-delay:5.8s}.d5{animation-delay:8s}.d6{animation-delay:10.4s}.d7{animation-delay:13s}
+  .year { font-family:Georgia,serif; font-size:15px; letter-spacing:6px; color:#b08a4f; margin-bottom:40px; }
+  h1 { font-size:26px; letter-spacing:14px; color:#f2ede2; margin-bottom:36px; font-weight:normal; }
+  p { font-size:14.5px; line-height:2.5; text-align:justify; text-align-last:center; margin-bottom:24px; color:#a9a294; }
+  p strong { color:#e8e2d4; font-weight:normal; }
+  .letter { border:1px solid #26262c; background:#0b0c10; padding:26px 30px; margin:36px 0; font-size:13.5px; line-height:2.4; color:#9a9488; text-align:left; }
+  .letter b { color:#d8d2c4; font-weight:normal; }
+  .letter .sig { text-align:right; margin-top:12px; color:#7b7568; }
+  .verse { font-size:17px; color:#b08a4f; letter-spacing:3px; margin:40px 0; line-height:2.2; }
+  .back { margin-top:54px; opacity:0; animation:up 2s ease 15s forwards; }
+  .back a { display:inline-block; border:1px solid #3a3a40; color:#8b8578; padding:12px 38px; font-size:12px; letter-spacing:5px; text-decoration:none; transition:all .5s; }
+  .back a:hover { border-color:#b08a4f; color:#b08a4f; letter-spacing:7px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="year fi d1">ECHOES — 全 收 集</div>
+    <h1 class="fi d1">回　声</h1>
+
+    <p class="fi d2">
+      信寄出的第七天，案件由省厅直接指定管辖。<br>
+      第3页笔录从尘封的移交卷宗里找了出来——当年它被抽走前，有人偷偷留了复印件，<br>
+      夹在一本《刑事摄影教程》里，扉页写着：周建国 藏。
+    </p>
+
+    <p class="fi d2">
+      秦有利被带走那天，沿河路的雪停了。<br>
+      老周穿着旧夹克站在人群外，敬了一个不太标准的礼。
+    </p>
+
+    <div class="letter fi d3">
+      <b>来信一</b><br>
+      路明先生：<br>
+      我叫严苗苗。看了报道才知道，我三个月大时拍的那张百日照，还有这么多人替它记得。<br>
+      我妈改名换姓活了二十年，临走前烧掉了所有和纺织厂有关的东西，只留下那张照片——现在我知道她烧不动的是什么了。<br>
+      下学期我在新上岗的小学教语文。第一课，我准备教"记忆"这个词。<br>
+      <div class="sig">—— 苗苗</div>
+    </div>
+
+    <div class="letter fi d4">
+      <b>来信二</b><br>
+      小路：<br>
+      医生说我还有个把月。别来，医院冷。<br>
+      这些年我只求一件事：让我活到宣判。看样子能行。<br>
+      沈老头那盘磁带我托你转交档案馆吧，别署我的名。他就那样——干了天大的事，落款都想省了。<br>
+      <div class="sig">—— 老周</div>
+    </div>
+
+    <div class="letter fi d5">
+      <b>档案备注</b><br>
+      卷41（编号：工号041）原始底片移交省档案馆，与白秀娟案终审卷宗合并封存。<br>
+      相纸盒夹层内另发现未曝光胶卷一卷，冲洗后为长明照相馆1996-1998年店景十二格，其中一格为每年12月24日23:59的自拍计时照片：空荡的店堂，亮着的红灯，<b>晾绳上挂着二十六张同一个姑娘的照片。</b>
+    </div>
+
+    <div class="verse fi d6">
+      "暗房里没有鬼。"<br>
+      "——只有一直没等到回音的回声。"
+    </div>
+
+    <p class="fi d6">
+      春天，民俗文化馆动工前，考古队在河床清淤时又挖出几只铁盒。<br>
+      你没有去看。那天你在店里——原址保留下来的三间瓦房——给一位来取照片的姑娘放大了一张合影。<br>
+      显影、停显、定影、水洗。一步没少。
+    </p>
+
+    <p class="fi d7"><strong>（隐藏章 · 完）</strong><br>你听完了所有的声音，翻完了所有的纸。替师傅寄了信，也替自己放下了那张没寄出的回执。</p>
+
+    <div class="back"><a href="javascript:window.close();">关 灯，回 家</a></div>
+  </div>
+<script src="shared/core.js"></script>
+<script>SFX.ensure(); setTimeout(() => SFX.theme(), 1200);</script>
+</body>
+</html>
