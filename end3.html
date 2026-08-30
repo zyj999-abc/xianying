@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结局 · 定影</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#050505; color:#a8a398; font-family:"SimSun","宋体",serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; }
+  .wrap { max-width:600px; width:92%; padding:90px 0 60px; }
+  .fi { opacity:0; transform:translateY(14px); animation:up 2.6s ease forwards; }
+  @keyframes up { to { opacity:1; transform:none; } }
+  .d1 { animation-delay:.6s; } .d2 { animation-delay:2.4s; } .d3 { animation-delay:4.4s; } .d4 { animation-delay:6.6s; }
+  .year { font-family:Georgia,serif; font-size:14px; letter-spacing:6px; color:#5c574f; margin-bottom:44px; }
+  h1 { font-size:25px; letter-spacing:14px; color:#cfcbc0; margin-bottom:42px; font-weight:normal; }
+  p { font-size:14px; line-height:2.6; text-align:justify; text-align-last:center; margin-bottom:26px; color:#8b867b; }
+  p strong { color:#cfc9bd; font-weight:normal; }
+  .quote { border-left:2px solid #2c2a26; padding-left:16px; text-align:left; font-style:italic; color:#6f6a60; margin:34px auto; max-width:420px; line-height:2.4; font-size:13px; }
+  .back { margin-top:56px; opacity:0; animation:up 2s ease 10s forwards; }
+  .back a { display:inline-block; border:1px solid #2e2c28; color:#7b766c; padding:12px 38px; font-size:12px; letter-spacing:5px; text-decoration:none; transition:all .5s; }
+  .back a:hover { border-color:#7b766c; color:#a8a398; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="year fi d1">FIXED — AND FORGOTTEN</div>
+    <h1 class="fi d1">定　影</h1>
+
+    <p class="fi d2">
+      你关了机，赶在1月5号之前清完了店。<br>
+      拆迁队进场那天，你站在马路对面。挖掘机的爪子落下时，<br>
+      有人喊了一句："里屋还有台电脑——"
+    </p>
+
+    <p class="fi d2">
+      "无主废弃物，一块儿清了。"
+    </p>
+
+    <p class="fi d3">
+      你把那封没寄出的挂号信带回了南方的家，放进抽屉最底层。<br>
+      起初每年腊月你都会拿出来看一次。后来是两年一次。后来你不记得放在哪个抽屉了。
+    </p>
+
+    <p class="fi d4">
+      只有一件事你始终没想明白：<br>
+      12月24号那天路过工地，围挡里飘出来一张相纸的边角，<strong>在雪地里，红得像围巾。</strong>
+    </p>
+
+    <div class="quote fi d4">
+      "活着比真相难。——周建国，1999年1月5日，电话里"<br><br>
+      "难，不是不能。——沈明礼，日记，2024年12月20日"
+    </div>
+
+    <p class="fi d4">你在那句话之间，站了很多年。</p>
+
+    <div class="back"><a href="javascript:history.back()">不，回去开机</a></div>
+  </div>
+<script src="shared/core.js"></script>
+<script>SFX.ensure();</script>
+</body>
+</html>
