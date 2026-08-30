@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>显影 · 调阅声明</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+  body, html { width:100%; height:100%; background:#070606; color:#c9c2b6; font-family:"SimSun","宋体",serif; display:flex; align-items:center; justify-content:center; }
+  body::before { content:""; position:fixed; inset:0; pointer-events:none; z-index:5;
+    background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,.22) 50%); background-size:100% 3px; }
+  .box { position:relative; z-index:10; width:92%; max-width:660px; max-height:92vh; overflow-y:auto;
+    background:#0b0a09; border:1px solid #262220; border-top:3px solid #8c2b1e; padding:46px 42px;
+    box-shadow: 0 0 40px rgba(0,0,0,.9), inset 0 0 24px rgba(0,0,0,.6);
+    opacity:0; transform:scale(.985); animation:boot 1.4s cubic-bezier(.2,.8,.2,1) forwards; }
+  .box::-webkit-scrollbar { width:4px; } .box::-webkit-scrollbar-thumb { background:#8c2b1e; }
+  @keyframes boot { to { opacity:1; transform:none; } }
+  h1 { text-align:center; color:#c2472f; font-size:22px; letter-spacing:8px; margin-bottom:8px; text-shadow:0 0 12px rgba(160,40,20,.5); }
+  .sub { text-align:center; color:#5c554b; font-size:11px; font-family:monospace; letter-spacing:3px; margin-bottom:36px; }
+  .clause { margin-bottom:22px; font-size:13.5px; line-height:2; color:#a89f90; text-align:justify; }
+  .clause b { display:block; color:#e8e2d6; font-size:14.5px; margin-bottom:6px; border-left:2px solid #8c2b1e; padding-left:10px; letter-spacing:2px; }
+  .red { color:#c2472f; font-weight:bold; }
+  .meta { margin-top:34px; padding-top:18px; border-top:1px dashed #2c2825; display:flex; justify-content:space-between; font-size:11px; color:#5c554b; font-family:monospace; }
+  .go { margin-top:30px; text-align:center; }
+  .btn { background:transparent; color:#e8e2d6; border:1px solid #3c3630; padding:12px 40px; font-size:14px;
+    letter-spacing:4px; font-family:"SimSun",serif; cursor:pointer; transition:all .3s; }
+  .btn:hover { border-color:#c2472f; color:#c2472f; box-shadow:0 0 16px rgba(160,40,20,.35); }
+  .fadeout { animation:off 1s forwards; }
+  @keyframes off { 50% { filter:contrast(2) brightness(.5);} 100% { opacity:0; filter:blur(2px);} }
+</style>
+</head>
+<body>
+  <div class="box" id="box">
+    <h1>显 影</h1>
+    <div class="sub">DEVELOPING — 调阅声明 DECLARATION</div>
+
+    <div class="clause"><b>Ⅰ · 原创声明</b>
+      本作是一个完全原创的叙事解谜游戏。故事、人物、机构与一切影像均为虚构设定，时代细节仅作氛围还原。如与现实中任何人事雷同，纯属巧合。全部画面元素均不取材自任何既有游戏作品。</div>
+
+    <div class="clause"><b>Ⅱ · 内容预警</b>
+      本作含有<span class="red">悬疑、沉重叙事与轻微惊悚氛围（微恐）</span>：涉及旧案、离别与遗憾。全程<span class="red">无突脸惊吓、无血腥画面</span>，恐惧来自你自己的推理与想象。不适宜 16 岁以下人群游玩。</div>
+
+    <div class="clause"><b>Ⅲ · 游玩方式</b>
+      桌面上的一切都可以打开、翻看、放大、比对。<span class="red">线索不会标给你，结论要你自己拼</span>。机器里有一本"账"，那是留给你的。存档自动进行，关闭浏览器不会丢失进度。</div>
+
+    <div class="clause"><b>Ⅳ · 感官提示</b>
+      强烈建议佩戴耳机、调低环境亮度、独自游玩。全程约 60 分钟。若感到不适，请随时停下来休息——底片不会跑。</div>
+
+    <div class="meta"><span>长明照相馆 · 最后营业日</span><span>SYSTEM: STANDBY</span></div>
+
+    <div class="go"><button class="btn" id="ok">我已悉知，进去看看</button></div>
+  </div>
+
+<script>
+  document.getElementById('ok').addEventListener('click', function () {
+    const b = document.getElementById('box');
+    b.classList.add('fadeout');
+    setTimeout(() => location.href = 'intro.html', 1000);
+  });
+</script>
+</body>
+</html>
