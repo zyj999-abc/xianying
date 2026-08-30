@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>结局 · 显影</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#08090c; color:#cfc9bd; font-family:"SimSun","宋体",serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; }
+  .wrap { max-width:640px; width:92%; padding:80px 0 60px; }
+  .fi { opacity:0; transform:translateY(18px); animation:up 2.6s ease forwards; }
+  @keyframes up { to { opacity:1; transform:none; } }
+  .d1 { animation-delay:.6s; } .d2 { animation-delay:2.2s; } .d3 { animation-delay:4s; }
+  .d4 { animation-delay:5.8s; } .d5 { animation-delay:7.6s; } .d6 { animation-delay:9.4s; }
+  .year { font-family:Georgia,serif; font-size:15px; letter-spacing:6px; color:#b08a4f; margin-bottom:46px; }
+  h1 { font-size:26px; letter-spacing:14px; color:#f2ede2; margin-bottom:40px; font-weight:normal; }
+  p { font-size:14.5px; line-height:2.5; text-align:justify; text-align-last:center; margin-bottom:26px; color:#a9a294; }
+  p strong { color:#e8e2d4; font-weight:normal; }
+  .verse { font-size:17px; color:#b08a4f; letter-spacing:3px; margin:44px 0; line-height:2.2; }
+  .list { list-style:none; border-top:1px solid #1c1c20; border-bottom:1px solid #1c1c20; padding:34px 0; margin:44px 0; }
+  .list li { margin-bottom:26px; font-size:13.5px; line-height:2.2; color:#8b8578; }
+  .list li:last-child { margin-bottom:0; }
+  .list b { display:block; font-size:12px; color:#8c3b2b; letter-spacing:5px; margin-bottom:6px; font-weight:normal; }
+  .line { width:44px; height:1px; background:#2a2a30; margin:44px auto; }
+  .ep { font-size:13px; color:#7b7568; font-style:italic; line-height:2.4; }
+  .back { margin-top:60px; opacity:0; animation:up 2s ease 12s forwards; }
+  .back a { display:inline-block; border:1px solid #3a3a40; color:#8b8578; padding:12px 38px; font-size:12px; letter-spacing:5px; text-decoration:none; transition:all .5s; }
+  .back a:hover { border-color:#b08a4f; color:#b08a4f; letter-spacing:7px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="year fi d1">XIAN YING — DEVELOPED</div>
+    <h1 class="fi d1">显　影</h1>
+
+    <p class="fi d2">
+      挂号信在12月30日傍晚送达省纪委信访室。<br>
+      12月31日上午十点零四分，签约仪式的致辞念到第三句，<br>
+      两名工作人员从侧门走向主席台。秦有利的讲话停在了"留住城市的记忆"。
+    </p>
+
+    <p class="fi d3">
+      卷41的底片重新走进鉴定室时，技术员是一九九八年那批老刑警的徒弟的徒弟。<br>
+      第三十六格放大到最大：河边、火光、那张脸——<br>
+      <strong>二十六年了，还是那个火机。</strong>
+    </p>
+
+    <div class="verse fi d3">"凡烧掉的，都留下灰的形状。"</div>
+
+    <ul class="list">
+      <li class="fi d4"><b>【重 案】</b>白秀娟案撤销"意外落水"结论，重新立案侦查。<br>惠丰实业1998年"设备款"资金链被整体调卷，旧案并案。</li>
+      <li class="fi d4"><b>【证 言】</b>七十一岁的周建国以证人身份走进询问室。<br>他说：第3页是我钉上去的。这次，谁也抽不走了。</li>
+      <li class="fi d5"><b>【百 照】</b>严凤英当年的改口笔录被调出。严苗苗把那张火燎边缘的百日照<br>捐给了还没盖起来的民俗文化馆——展签写着：捐赠人，苗苗。</li>
+      <li class="fi d5"><b>【店 铺】</b>长明照相馆原址保留三间瓦房，挂牌"城市记忆点"。<br>橱窗里挂的不再是样片。是一张新印的照片：<br>一个穿蓝布工装、梳两条辫子的姑娘。照片下方一行小字：<br><strong>白秀娟（1972-1998）。拍下真相的人。</strong></li>
+    </ul>
+
+    <div class="line fi d6"></div>
+    <div class="ep fi d6">
+      师傅的遗书最后一页没有被寄出——它留在了店里，压在暗房红灯下面。<br>
+      最后一行是：<br><br>
+      "暗房里没有鬼。只有没洗完的底片。<br>
+      今晚都洗完了。小路，关灯，回家。"
+    </div>
+
+    <div class="back"><a href="javascript:window.close();">关 灯</a></div>
+  </div>
+<script src="shared/core.js"></script>
+<script>SFX.ensure(); setTimeout(() => SFX.theme(), 1200);</script>
+</body>
+</html>
