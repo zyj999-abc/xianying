@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长明照相馆 · 内部机</title>
+<link rel="stylesheet" href="shared/xp.css">
+<style>
+  body { background:#3a6ea5 url('assets/img/wallpaper.jpg') center/cover fixed no-repeat; }
+  #desk { transition: opacity 1.2s; }
+  .notice-banner {
+    position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:800;
+    background:rgba(10,20,40,.72); color:#cfe0ff; font-size:12px; padding:6px 16px; border-radius:3px;
+    border:1px solid rgba(120,160,220,.4); letter-spacing:2px; display:none;
+  }
+  .notice-banner.show { display:block; }
+</style>
+</head>
+<body>
+<div id="desk">
+  <div class="notice-banner" id="banner"></div>
+
+  <!-- ================= 桌面图标 ================= -->
+  <div class="desktop" id="icons">
+    <div class="dicon" data-app="explorer"><div class="ic">🗄️</div><div class="lb">档案库</div></div>
+    <div class="dicon" data-app="lighttable"><div class="ic">🔬</div><div class="lb">明室<br>（底片分析）</div></div>
+    <div class="dicon" data-app="ledger"><div class="ic">📊</div><div class="lb">取件台账</div></div>
+    <div class="dicon" data-app="phone"><div class="ic">☎️</div><div class="lb">电话</div></div>
+    <div class="dicon" data-app="tapes"><div class="ic">📻</div><div class="lb">录音带</div></div>
+    <div class="dicon" data-app="ie"><div class="ic">🌐</div><div class="lb">Internet<br>Explorer</div></div>
+    <div class="dicon" data-app="board"><div class="ic">📕</div><div class="lb">师傅的账</div></div>
+    <div class="dicon" data-app="printq"><div class="ic">🖨️</div><div class="lb">打印队列</div></div>
+    <div class="dicon" data-app="bin"><div class="ic">🗑️</div><div class="lb">回收站</div></div>
+  </div>
+
+  <!-- ================= 任务栏 ================= -->
+  <div class="taskbar">
+    <button class="start-btn" id="startBtn">开始</button>
+    <div class="task-items" id="taskItems"></div>
+    <div class="tray">
+      <span class="mute-btn" id="muteBtn" title="声音">🔊</span>
+      <span id="nightInfo">12-25</span>
+      <span id="clockInfo">20:00</span>
+    </div>
+  </div>
+  <div class="start-menu" id="startMenu">
+    <div class="sm-header"><div class="avatar"></div><span>路明</span></div>
+    <div class="sm-body">
+      <div class="sm-item" id="smAbout">关于这台机器</div>
+      <div class="sm-item" id="smReset">重新开始（清除存档）</div>
+    </div>
+    <div class="sm-footer"><button class="sm-btn" id="smShutdown">关闭计算机(U)</button></div>
+  </div>
+
+  <!-- ================= 窗口：档案库 ================= -->
+  <div class="xpwin" id="win-explorer" data-title="档案库 — 扫描底片与文档">
+    <div class="xp-titlebar"><span>档案库</span><div class="xp-close">X</div></div>
+    <div class="xp-toolbar"><span>← 后退</span><span>文件(F)</span><span>编辑(E)</span><span>查看(V)</span><span style="margin-left:auto;color:#777" id="explorerPath"></span></div>
+    <div class="xp-body" style="padding:0"><div class="explorer-wrap">
+      <div class="explorer-side" id="explorerSide"></div>
+      <div class="explorer-main" id="explorerMain"></div>
+    </div></div>
+  </div>
+
+  <!-- ================= 窗口：明室 ================= -->
+  <div class="xpwin" id="win-lighttable" data-title="明室 — 底片分析台 v0.9β" style="width:760px">
+    <div class="xp-titlebar"><span>明室 — 底片分析台</span><div class="xp-close">X</div></div>
+    <div class="xp-toolbar">
+      <select id="ltSelect" class="xp-input" style="font-size:11px"></select>
+      <button class="xp-btn" id="ltInvert" style="padding:2px 10px">反相</button>
+      <button class="xp-btn" id="ltMirror" style="padding:2px 10px">镜像</button>
+      <button class="xp-btn" id="ltMag" style="padding:2px 10px">放大镜</button>
+      <span style="color:#777">暗房红灯下，能看清多少，看手艺。</span>
+    </div>
+    <div class="xp-body">
+      <div class="lighttable-wrap">
+        <div class="lt-stage" id="ltStage">
+          <img class="main" id="ltImg" alt="">
+          <div class="lt-overlay" id="ltOverlay"></div>
+          <div class="lt-mag" id="ltMagGlass"></div>
+        </div>
+        <div class="lt-ctl">
+          <span>亮度</span><input type="range" id="rBright" min="40" max="260" value="100"><span id="vBright">100%</span>
+          <span>对比</span><input type="range" id="rContrast" min="40" max="260" value="100"><span id="vContrast">100%</span>
+          <span>红通道</span><input type="range" id="rRed" min="0" max="100" value="0"><span id="vRed">0</span>
+        </div>
+      </div>
+      <div id="ltNote" style="margin-top:8px;font-size:11px;color:#555;line-height:1.8"></div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：台账 ================= -->
+  <div class="xpwin" id="win-ledger" data-title="取件台账 — 长明照相馆">
+    <div class="xp-titlebar"><span>取件台账管理系统 [单机版]</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <div id="ledgerGate">
+        <div class="ledger-screen">
+          <div class="ledger-line">长明照相馆 · 取件台账管理系统 1996-2006</div>
+          <div class="ledger-line">Copyright 长明照相馆 内部使用</div>
+          <div class="ledger-line">&nbsp;</div>
+          <div class="ledger-line">请输入开启口令：<input class="xp-input" id="ledgerPwd" style="width:120px;font-family:monospace" maxlength="6">
+            <button class="xp-btn" id="ledgerGo">登 录</button></div>
+          <div class="ledger-line err" id="ledgerErr" style="color:#ff6a6a"></div>
+          <div class="ledger-line" style="color:#3f8f5f;margin-top:14px">口令提示（师傅字迹扫描）：挂在暗房门后那串。</div>
+        </div>
+      </div>
+      <div id="ledgerApp" style="display:none">
+        <div class="ledger-screen">
+          <div class="ledger-line" style="color:#b8ffd0">检索：&nbsp;
+            姓名/关键字 <input class="xp-input" id="qKeyword" style="width:110px;font-family:monospace">
+            日期 <input class="xp-input" id="qFrom" style="width:80px;font-family:monospace" placeholder="如 1998-12">
+            <button class="xp-btn" id="qGo">查 询</button>
+            <button class="xp-btn" id="qAll">全部(1998)</button>
+          </div>
+          <div class="ledger-line" id="qStatus">就绪。<span class="ledger-cursor"></span></div>
+          <div id="qResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：电话 ================= -->
+  <div class="xpwin" id="win-phone" data-title="电话 — 拨号盘" style="width:520px">
+    <div class="xp-titlebar"><span>电话</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <div class="phone-body">
+        <div>
+          <div id="phoneBook" style="margin-bottom:10px;display:flex;flex-direction:column;gap:6px"></div>
+          <div class="phone-pad" id="phonePad"></div>
+        </div>
+        <div class="phone-lcd" id="phoneLcd">待机。<br><br>（从纸质材料里找到号码后，通讯录会亮起来。）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：录音带 ================= -->
+  <div class="xpwin" id="win-tapes" data-title="录音带 — 数字化录音">
+    <div class="xp-titlebar"><span>录音带</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <div class="tape-row" id="tapeRow"></div>
+      <div class="rn-noise" id="tapeScreen" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：IE ================= -->
+  <div class="xpwin" id="win-ie" data-title="Internet Explorer — 离线缓存">
+    <div class="xp-titlebar"><span>Internet Explorer</span><div class="xp-close">X</div></div>
+    <div class="xp-toolbar"><span style="color:#777">地址</span><input class="xp-input" style="flex:1;font-size:11px" value="http://cache.local/（离线缓存模式）" readonly></div>
+    <div class="xp-body">
+      <div id="ieHome" style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;color:#333;line-height:2">脱机工作状态。以下为历史缓存快照：</div>
+        <div class="clue-chip" data-url="web/ie_news.html">★ 2006 ·《城南旧事：一家老照相馆的数码转身》 — 城南周刊</div>
+        <div class="clue-chip" data-url="web/ie_bbs.html">★ 2024 · 白川论坛 —「老城 · 拆迁」版块快照</div>
+        <div class="clue-chip" data-url="web/ie_gov.html">★ 2024 · 区政府门户 — 旧城改造公示与捐赠签约</div>
+      </div>
+      <iframe class="ie-iframe" id="ieFrame" style="display:none"></iframe>
+      <div style="margin-top:8px"><button class="xp-btn" id="ieBack" style="display:none">← 返回缓存列表</button></div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：档案板 ================= -->
+  <div class="xpwin" id="win-board" data-title="师傅的账" style="width:680px">
+    <div class="xp-titlebar"><span>师傅的账（底稿）.doc</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <p style="font-size:12px;color:#333;line-height:2;margin-bottom:10px">
+        文档是一张没写完的对照表。师傅的批注：<span class="red-pen">"把线索钉进格子里。一格钉错，全盘皆输。钉对一组，我留的话就出来一行。"</span></p>
+      <div class="board-grid">
+        <div class="board-group"><h4>── 钱 ──（钱从哪来，到哪去）</h4><div class="board-slots" data-g="G1"></div></div>
+        <div class="board-group"><h4>── 人 ──（那天夜里，河边都有谁）</h4><div class="board-slots" data-g="G2"></div></div>
+        <div class="board-group"><h4>── 纸 ──（证据在哪，为什么沉默）</h4><div class="board-slots" data-g="G3"></div></div>
+      </div>
+      <div style="margin-top:12px"><div style="font-size:11px;color:#666;margin-bottom:6px">线索筐（点击线索，再点格子钉入）：</div><div id="boardPool"></div></div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：打印队列 ================= -->
+  <div class="xpwin" id="win-printq" data-title="打印队列" style="width:560px">
+    <div class="xp-titlebar"><span>打印队列 — HP Deskjet 1220C</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <table style="width:100%;border-collapse:collapse;font-size:11.5px" id="pqTable">
+        <thead><tr style="background:#dfe8f6"><th style="text-align:left;padding:5px">文档名</th><th style="text-align:left;padding:5px">发送时间</th><th style="padding:5px">状态</th></tr></thead>
+        <tbody id="pqBody"></tbody>
+      </table>
+      <div class="hintbox" id="pqHint" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ================= 窗口：回收站 ================= -->
+  <div class="xpwin" id="win-bin" data-title="回收站" style="width:600px">
+    <div class="xp-titlebar"><span>回收站</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <p style="font-size:12px;color:#333;margin-bottom:10px;line-height:2">回收站未清空。师傅最后没有删掉它们——只是拖了进来，又停了手。</p>
+      <div id="binList"></div>
+    </div>
+  </div>
+
+  <!-- ================= 通用查看器（照片/文档） ================= -->
+  <div class="xpwin" id="win-viewer" data-title="查看器" style="width:720px">
+    <div class="xp-titlebar"><span id="viewerTitle">查看</span><div class="xp-close">X</div></div>
+    <div class="xp-body" id="viewerBody"></div>
+  </div>
+
+  <!-- ================= 最终：挂号信 ================= -->
+  <div class="xpwin" id="win-letter" data-title="挂号信 — 已写好，未寄出" style="width:640px">
+    <div class="xp-titlebar"><span>挂号信（在柜台抽屉里）</span><div class="xp-close">X</div></div>
+    <div class="xp-body">
+      <div class="doc-paper" id="letterPaper"></div>
+      <div style="margin-top:14px;text-align:center" id="letterActions"></div>
+    </div>
+  </div>
+</div>
+
+<div class="wall-figure" id="wallFigure"></div>
+<div class="breath-dim" id="breathDim"></div>
+<div class="breath-text" id="breathText">……有人站在你身后看屏幕。</div>
+<div class="crt-overlay"></div>
+<div class="crt-vignette"></div>
+
+<script src="shared/core.js"></script>
+<script>
+/* ============================================================
+   《显影》 桌面主程序
+   ============================================================ */
+if (!XY.flag('login')) { location.href = 'login.html'; }
+XY.load().started = true; XY.save();
+
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const S = () => XY.load();
+
+/* ---------------- 窗口管理 ---------------- */
+let zTop = 100;
+function openWin(id) {
+  const w = document.getElementById(id);
+  if (!w) return;
+  w.classList.add('open');
+  w.style.zIndex = ++zTop;
+  addTask(id);
+  SFX.hdd();
+  if (window.innerWidth < 720) { w.style.left = '2vw'; w.style.top = '2vh'; w.style.width = '96vw'; }
+}
+function closeWin(id) {
+  document.getElementById(id).classList.remove('open');
+  removeTask(id);
+}
+function addTask(id) {
+  const w = document.getElementById(id);
+  if (document.querySelector(`.task-item[data-w="${id}"]`)) return;
+  const t = document.createElement('div');
+  t.className = 'task-item'; t.dataset.w = id; t.textContent = (w.dataset.title || id).slice(0, 14);
+  t.addEventListener('click', () => {
+    if (w.classList.contains('open')) { w.style.zIndex = ++zTop; } else openWin(id);
+  });
+  $('#taskItems').appendChild(t);
+}
+function removeTask(id) {
+  const t = document.querySelector(`.task-item[data-w="${id}"]`);
+  if (t) t.remove();
+}
+$$('.xpwin').forEach(w => {
+  const bar = w.querySelector('.xp-titlebar');
+  bar.addEventListener('pointerdown', e => {
+    if (e.target.classList.contains('xp-close')) return;
+    w.style.zIndex = ++zTop;
+    const sx = e.clientX - w.offsetLeft, sy = e.clientY - w.offsetTop;
+    const mv = ev => { w.style.left = Math.max(0, ev.clientX - sx) + 'px'; w.style.top = Math.max(0, ev.clientY - sy) + 'px'; w.classList.add('dragging'); };
+    const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); w.classList.remove('dragging'); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  });
+  w.querySelector('.xp-close').addEventListener('click', () => closeWin(w.id));
+});
+$$('.dicon').forEach(ic => {
+  ic.addEventListener('click', () => {
+    $$('.dicon').forEach(d => d.classList.remove('selected'));
+    ic.classList.add('selected');
+  });
+  ic.addEventListener('dblclick', () => launch(ic.dataset.app));
+  ic.addEventListener('touchend', (e) => { e.preventDefault(); launch(ic.dataset.app); }, { passive: false });
+});
+function launch(app) {
+  SFX.blip(660, .04, .05);
+  if (app === 'explorer') { renderExplorer(); openWin('win-explorer'); }
+  if (app === 'lighttable') { openWin('win-lighttable'); refreshLT(); }
+  if (app === 'ledger') openWin('win-ledger');
+  if (app === 'phone') { renderPhoneBook(); openWin('win-phone'); }
+  if (app === 'tapes') { renderTapes(); openWin('win-tapes'); }
+  if (app === 'ie') openWin('win-ie');
+  if (app === 'board') { renderBoard(); openWin('win-board'); }
+  if (app === 'printq') { renderPrintQ(); openWin('win-printq'); }
+  if (app === 'bin') { renderBin(); openWin('win-bin'); }
+  if (app === 'letter') { renderLetter(); openWin('win-letter'); }
+}
+
+/* ---------------- 时钟 / 夜 ---------------- */
+function refreshClock() {
+  $('#clockInfo').textContent = XY.clockText();
+  const d = XY.dateOfNight(S().night);
+  $('#nightInfo').textContent = d.slice(5) + ' · 距签约 ' + (7 - S().night) + ' 天';
+}
+XY.startClock(() => {
+  refreshClock();
+  if (S().horror >= 2 && Math.random() < .06) {   // 时钟偶尔倒回 23:41
+    const c = $('#clockInfo'); c.textContent = '23:41'; c.style.color = '#ffb0b0';
+    setTimeout(() => { refreshClock(); c.style.color = ''; }, 900);
+  }
+});
+refreshClock();
+
+/* ---------------- 声音 ---------------- */
+$('#muteBtn').addEventListener('click', () => {
+  SFX.ensure();
+  const m = !S().muted; SFX.setMuted(m);
+  $('#muteBtn').textContent = m ? '🔇' : '🔊';
+});
+document.body.addEventListener('pointerdown', function once() {
+  SFX.ensure(); SFX.rain(true); SFX.hum(true);
+  window.removeEventListener('pointerdown', once);
+});
+
+/* ---------------- 微恐调度 ---------------- */
+function applyHorror() {
+  const L = XY.horrorLevel();
+  if (L >= 3) $('#wallFigure').classList.add('show');
+  else $('#wallFigure').classList.remove('show');
+}
+SCARE.armIdle(() => {
+  if (XY.horrorLevel() < 2 || XY.load().ended) return;
+  const dim = $('#breathDim'), txt = $('#breathText');
+  dim.classList.add('on');
+  setTimeout(() => { txt.classList.add('show'); SFX.heart(); SFX.drone(3, .07); }, 1800);
+  setTimeout(() => { dim.classList.remove('on'); txt.classList.remove('show'); }, 5600);
+}, 55);
+document.addEventListener('xy:clue', () => { applyHorror(); toast('线索已收入案卷（右上"师傅的账"可查看进度）。'); });
+document.addEventListener('xy:night', () => { applyHorror(); refreshClock(); banner('夜里。雨没停。日子又少了一天。'); if (S().night >= 6) { SFX.drone(5, .06); } });
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'clue-toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 500); }, 3400);
+}
+function banner(msg) {
+  const b = $('#banner'); b.textContent = msg; b.classList.add('show');
+  setTimeout(() => b.classList.remove('show'), 4200);
+}
+
+/* ---------------- 查看器 ---------------- */
+function viewer(title, html, onOpen) {
+  $('#viewerTitle').textContent = title;
+  $('#viewerBody').innerHTML = html;
+  openWin('win-viewer');
+  onOpen && onOpen();
+}
+
+/* ============================================================
+   档案库
+   ============================================================ */
+const EXPLORER_TREE = {
+  '扫描底片库': () => [
+    { n: '卷19 · 百日合影(1998)', ic: '🎞️', act: () => openContactSheet('R19') },
+    { n: '卷23 · 厂区冬修(1998)', ic: '🎞️', act: () => openContactSheet('R23') },
+    { n: '卷40 · 清淤之前(2024)', ic: '🎞️', act: () => openContactSheet('R40') },
+    { n: XY.flag('r41open') ? '卷41 · 白（工号041）' : '卷41 · 未命名 [锁]', ic: XY.flag('r41open') ? '🎞️' : '🔒', act: () => gateR41() },
+  ],
+  '文档': () => [
+    { n: '日记_1998.txt', ic: '📄', act: () => showDoc('diary98') },
+    { n: '日记_2024.txt', ic: '📄', act: () => showDoc('diary24') },
+    { n: '笔录_1998_甲.jpg', ic: '🖼️', act: () => showDoc('bijia') },
+    { n: '笔录_1998_乙.jpg', ic: '🖼️', act: () => showDoc('bijib') },
+    { n: '剪报_1999.jpg', ic: '🖼️', act: () => showDoc('clip99') },
+    { n: XY.flag('letterDraft') ? '遗书草稿.doc' : '（一个加密的空文档）', ic: '📝', locked: !XY.flag('letterDraft'), act: () => showDoc('yishu') },
+    XY.flag('printDone') ? { n: '白秀娟_补打_第26张.jpg', ic: '🖼️', act: () => showDoc('print26') } : null,
+  ].filter(Boolean),
+  '已恢复': () => XY.load().binRestored.map(id => BIN_ITEMS.find(b => b.id === id)).filter(Boolean).map(b => ({
+    n: b.name, ic: '🖼️', act: () => viewer(b.name, b.restoredHtml, b.onRestoreView)
+  }))
+};
+let curFolder = '扫描底片库';
+function renderExplorer() {
+  const side = $('#explorerSide');
+  side.innerHTML = '';
+  Object.keys(EXPLORER_TREE).forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'fd' + (f === curFolder ? ' active' : '');
+    d.textContent = (f === '已恢复' && !XY.load().binRestored.length) ? '已恢复（空）' : f;
+    d.addEventListener('click', () => { curFolder = f; renderExplorer(); });
+    side.appendChild(d);
+  });
+  $('#explorerPath').textContent = 'C:\\长明照相馆\\' + curFolder;
+  const main = $('#explorerMain');
+  main.innerHTML = '';
+  const items = EXPLORER_TREE[curFolder]();
+  if (!items.length) main.innerHTML = '<div style="color:#888;font-size:12px">（空）</div>';
+  items.forEach(it => {
+    const d = document.createElement('div');
+    d.className = 'fitem' + (it.locked ? ' locked' : '');
+    d.innerHTML = `<div class="fi">${it.ic}</div><div class="fl">${it.n}</div>`;
+    d.addEventListener('click', () => { if (!it.locked) it.act(); else toast('锁着。提示就写在文件名或别的东西里。'); });
+    main.appendChild(d);
+  });
+}
+function showDoc(id) { DOCS[id](); }
+
+/* ---------------- 印样（接触印样） ---------------- */
+const FILMS = {
+  R19: {
+    title: '卷19 · 百日合影（1998-12-14）', cols: 3, count: 6,
+    cells: { 1: { img: 'assets/img/shopwindow.jpg', note: '百日照·棚拍 布景前' }, 2: { text: '照片背书（钢笔字）：“苗苗百日。凤英抱着，不敢笑。”' } },
+    hint: '严凤英的女儿严苗苗。台账里能查到这次拍摄。'
+  },
+  R23: {
+    title: '卷23 · 厂区冬修（1998-11-30）', cols: 4, count: 8,
+    cells: {
+      2: { img: 'assets/img/qin.jpg', note: '厂办主任秦有利在冬修现场（左手边第二人）', clue: 'c_qin_face', clueText: '认出了脸：秦有利，当年厂办主任。' },
+      5: { img: 'assets/img/ledgerpage.jpg', note: '车间墙上的考勤板' },
+    },
+    hint: '厂里最后一次“全员动员”。照片是师傅去拍的。'
+  },
+  R40: {
+    title: '卷40 · 清淤之前（2024-11-28）', cols: 2, count: 4,
+    cells: {
+      1: { img: 'assets/img/shopinterior.jpg', note: '店堂。一切如旧。' },
+      2: { special: 'darkroom', note: '暗房门后。红光下有排钥匙柜。', clue: 'c_darkroom' },
+    },
+    hint: '师傅最后扫进机器的四张照片。'
+  },
+  R41: {
+    title: '卷41 · 白（工号041）', cols: 6, count: 36,
+    cells: {
+      5: { special: 'ledger1' },
+      12: { special: 'ledger2' },
+      21: { img: 'assets/img/river.jpg', note: '河边。冬天的水位线。' },
+      28: { special: 'envelope' },
+      33: { img: 'assets/img/shopwindow.jpg', note: '……是我们店的橱窗。她来过。', clue: 'c_f39', clueText: '第33格：她拍过我们店的橱窗——出事前，她来过。' },
+      36: { burn: true, note: '' },
+    },
+    hint: '河泥里那台海鸥4B里的胶卷。师傅用她的工号给它编了号。'
+  }
+};
+function openContactSheet(rid) {
+  XY.addList('rolls', rid);
+  const F = FILMS[rid];
+  let cellsHtml = '';
+  for (let i = 1; i <= F.count; i++) {
+    const c = F.cells[i];
+    if (c && c.burn) { cellsHtml += `<div class="cs-cell burn" data-no="${i}"><span class="no">${i}</span></div>`; continue; }
+    const img = c && c.img ? c.img : (i % 2 ? 'assets/img/river.jpg' : 'assets/img/shopinterior.jpg');
+    cellsHtml += `<div class="cs-cell" data-no="${i}"><span class="no">${i}</span><img src="${img}"></div>`;
+  }
+  viewer(F.title, `
+    <div class="contact-sheet" style="grid-template-columns:repeat(${F.cols},1fr)">${cellsHtml}</div>
+    <p style="margin-top:10px;font-size:11.5px;color:#555;line-height:1.9">${F.hint || ''}（点格看大图；格 ${Object.keys(F.cells).join('、')} 值得细看）</p>
+    <div id="zoomArea"></div>
+  `, () => {
+    if (rid === 'R41') grant('c_rolls41', '看过卷41的印样：三十六格账页与河。');
+    $$('#viewerBody .cs-cell').forEach(cell => {
+      cell.addEventListener('click', () => zoomCell(rid, +cell.dataset.no));
+    });
+    if (XY.horrorLevel() >= 3 && rid === 'R41') {
+      setTimeout(() => {
+        const cells = $$('#viewerBody .cs-cell');
+        if (!cells.length) return;
+        const c = cells[Math.floor(Math.random() * cells.length)];
+        c.style.transition = 'filter 1s'; c.style.filter = 'sepia(1) hue-rotate(-40deg) saturate(4)';
+        SFX.drone(2, .06);
+        setTimeout(() => c.style.filter = '', 1400);
+      }, 2500);
+    }
+  });
+}
+function zoomCell(rid, no) {
+  zoomCellInner(rid, no);
+  setTimeout(() => {
+    const body = document.getElementById('viewerBody');
+    if (!body || body.querySelector('#backSheet')) return;
+    const d = document.createElement('div');
+    d.style.cssText = 'margin-top:14px;text-align:center';
+    d.innerHTML = '<button class="xp-btn" id="backSheet">← 返回印样</button>';
+    d.querySelector('button').addEventListener('click', () => openContactSheet(rid));
+    body.appendChild(d);
+  }, 30);
+}
+function zoomCellInner(rid, no) {
+  const F = FILMS[rid]; const c = F.cells[no];
+  XY.addList('frames', rid + '-' + no);
+  if (!c && true) {}
+  if (c && c.text && !c.img && !c.special && !c.burn) {
+    viewer(`第${no}格`, `
+      <div class="doc-paper" style="font-family:'KaiTi',serif;font-size:15px">${c.text}</div>
+      ${c.clue ? `<div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="${c.clue}" data-ct="${c.clueText}">看清了（记入案卷）</button></div>` : ''}
+    `);
+    bindClueBtns();
+    return;
+  }
+  if (!c) {
+    viewer(`第${no}格`, `<div style="color:#666;font-size:12px;line-height:2">普通的一格。曝光正常，内容平常。<br>（不是每一格都有话要说。）</div>`);
+    return;
+  }
+  if (c.burn) {
+    viewer(`第36格`, `
+      <div style="background:#0a0806;padding:40px;text-align:center;border:1px solid #332"> 
+        <div style="font-size:60px;color:#2b2119">⬛</div>
+        <p style="color:#7a6a55;font-size:12px;margin-top:14px;line-height:2">药膜烧灼。相纸层面的图像被高温毁掉了。<br>但师傅 2024 年扫描时留过一句备注：<span class="red-pen">“纸烧了，片没烧。片在。”</span></p>
+      </div>`);
+    return;
+  }
+  if (c.special === 'darkroom') {
+    viewer('暗房门后（放大）', `
+      <div style="position:relative;background:#1a0f0d;border:1px solid #422;padding:10px">
+        <img src="assets/img/shopinterior.jpg" style="width:100%;filter:sepia(.6) brightness(.55) contrast(1.2)">
+        <div style="position:absolute;left:58%;top:30%;width:26%;height:34%;background:rgba(30,20,15,.85);border:1px solid #654;transform:skewY(-2deg)">
+          <div style="color:#c9a86a;font-family:monospace;font-size:18px;text-align:center;margin-top:34%;letter-spacing:4px;transform:rotate(-3deg)">7-4-3</div>
+          <div style="color:#8a7350;font-size:9px;text-align:center">备用钥匙柜</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#555;margin-top:8px;line-height:2">暗房门后那排钥匙柜，最下面一档挂着台账柜的钥匙牌。<b>7-4-3</b>。<span class="red-pen">（师傅字迹：还是老地方。）</span></p>
+      <div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="c_key743" data-ct="记下了：台账口令 743。">看清了（记入案卷）</button></div>
+    `);
+    bindClueBtns();
+    return;
+  }
+  if (c.special === 'ledger1' || c.special === 'ledger2') {
+    const one = c.special === 'ledger1';
+    viewer(`第${no}格 · 账页照片（放大）`, `
+      <div style="position:relative;background:#0d0b08;padding:8px">
+        <img src="assets/img/ledgerpage.jpg" style="width:100%;filter:brightness(.85) contrast(1.15)">
+        <div style="position:absolute;inset:8%;display:flex;flex-direction:column;justify-content:center;gap:6px;font-family:'KaiTi',serif;color:#f2e8c9;font-size:14.5px;line-height:1.9;text-shadow:0 1px 2px #000">
+          ${one ? `
+            <div>11-02　收 三车间集资 <b>420,000</b></div>
+            <div>11-16　收 后勤集资 <b>180,000</b></div>
+            <div style="color:#ff9c8a">11-30　付 惠丰实业（秦）“设备款” <b>350,000</b></div>
+            <div style="color:#ff9c8a;font-size:13px">——11月小计：五十三万进，三十五万出到“惠丰”，全经秦手。</div>
+          ` : `
+            <div>12-14　付 严凤英 住院押金 <b>8,000</b>　经手：秦</div>
+            <div style="text-decoration:line-through;color:#bbb">12-15　付 发货站 60,000</div>
+            <div style="color:#ff9c8a;font-size:13px">“凤英姐的押金单在这里。她说这个字不是她签的。”</div>
+          `}
+        </div>
+      </div>
+      <p style="font-size:12px;color:#555;margin-top:8px;line-height:2">这是用相机翻拍的<b>第二本账</b>——她给自己留的底。微距下，纸的纤维都清楚。</p>
+      <div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="${one ? 'c_f05' : 'c_f17'}" data-ct="${one ? '第5格：第二本账——集资款分批汇入“惠丰实业（秦）”。' : '第12格：严凤英的住院押金也经秦的手，签名单位存疑。'}">看清了（记入案卷）</button></div>
+    `);
+    bindClueBtns();
+    return;
+  }
+  if (c.special === 'envelope') {
+    viewer(`第28格 · 一只信封`, `
+      <div style="display:flex;justify-content:center;padding:20px;background:#f5f1e6;border:1px solid #999">
+        <div style="width:300px;height:170px;background:#fbf7ea;border:1px solid #b5ad93;position:relative;box-shadow:2px 3px 8px rgba(0,0,0,.2)">
+          <div style="position:absolute;top:0;left:0;width:100%;height:36px;background:#f3ecd8;border-bottom:1px solid #d8cfae;clip-path:polygon(0 0,50% 100%,100% 0)"></div>
+          <div style="position:absolute;top:64px;left:34px;font-family:'KaiTi',serif;font-size:16px;color:#333;line-height:2">
+            省城 · 新闻出版社大院<br>徐惟真 记者 收
+          </div>
+          <div style="position:absolute;bottom:10px;right:14px;font-size:11px;color:#a33;font-family:monospace">加急</div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:#555;margin-top:8px;line-height:2">一只贴好邮票、没来得及寄的信封。她连收信人都想好了。</p>
+      <div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="c_f28" data-ct="第28格：没寄出的信封——收信人省报记者徐惟真。">看清了（记入案卷）</button></div>
+    `);
+    bindClueBtns();
+    return;
+  }
+  viewer(`第${no}格`, `
+    <img src="${c.img}" style="width:100%;max-height:380px;object-fit:contain;background:#000">
+    <p style="font-size:12px;color:#555;margin-top:8px;line-height:2">${c.note || ''}</p>
+    ${c.clue ? `<div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="${c.clue}" data-ct="${c.clueText}">看清了（记入案卷）</button></div>` : ''}
+  `);
+  bindClueBtns();
+}
+function bindClueBtns() {
+  $$('#viewerBody [data-clue]').forEach(b => b.addEventListener('click', () => {
+    XY.addClue(b.dataset.clue);
+    b.disabled = true; b.textContent = '已记入案卷 ✓';
+  }));
+}
+function grant(id, text) { if (!XY.hasClue(id)) { XY.addClue(id); toast(text); } }
+
+/* ---------------- 卷41 密码门 ---------------- */
+function gateR41() {
+  if (XY.flag('r41open')) { openContactSheet('R41'); return; }
+  const m = showModal(`
+    <h3>卷41 · 未命名</h3>
+    <p>文件夹上着锁。锁孔旁贴着一行小字：<b>“她的生日。”</b></p>
+    <p style="margin-top:6px;color:#555">（师傅的日历圈过 12 月 24 日。她的生日在哪份材料里写着？）</p>
+    <div style="margin-top:12px;text-align:center">
+      <input class="xp-input" id="r41pwd" maxlength="6" style="width:140px;text-align:center;font-family:monospace">
+      <button class="xp-btn" id="r41go">开 锁</button>
+      <div class="err" id="r41err"></div>
+    </div>
+  `);
+  m.el.querySelector('#r41go').addEventListener('click', () => {
+    BruteGuard.tryGate(m.el.querySelector('#r41pwd').value, ['1224'],
+      () => { XY.flag('r41open', true); m.close(); toast('锁开了。'); SFX.hdd(); },
+      (l) => { m.el.querySelector('#r41err').textContent = '不对。还剩 ' + l + ' 次。'; m.el.querySelector('#r41err').style.display = 'block'; },
+      (s) => { m.el.querySelector('#r41err').textContent = '锁住了，' + s + ' 秒后再试。'; m.el.querySelector('#r41err').style.display = 'block'; });
+  });
+}
+
+/* ---------------- 文档 ---------------- */
+const DOCS = {
+  diary98() {
+    viewer('日记_1998.txt', `<div class="doc-paper">
+      <p><b>12月18日　雪。</b><br>邮包寄到店里。牛皮纸，没有寄件人。一卷胶卷，一张便条。铅笔字很轻，像怕纸疼。</p>
+      <p><b>12月19日</b><br>纺织厂出了事。集资的钱没了。上头说会计卷款跑了——不对，白师傅是出纳，账她管，钱不归她管。<br>老周来坐到半夜。烟抽了一整包，一句话没说。</p>
+      <p><b>12月24日　夜</b><br>有人敲门。三下，停，再三下。<br>我把重拍的"干净"账页给了他。他数了两遍钱，说：沈师傅是个明白人。<br>真的那卷，缝进了相纸盒的夹层。今夜起，它睡在店里。</p>
+      <p><b>1999年1月2日</b><br>三十六格。我把第三十六张相纸烧了。<span class="red-pen">印样的小样还在——烧的时候手抖得厉害，火钳掉在地上两次。</span><br>凤英抱着苗苗来店里哭。她说有人要她改口。我说：我知道。我们俩，一个哑巴，半个哑巴。</p>
+      <p><b>1月5日</b><br>围巾找到了。电台说是失足。<br>老周在电话那头沉默很久，只说：老沈，活着比真相难。</p></div>`);
+    XY.addList('docs', 'diary98');
+  },
+  diary24() {
+    viewer('日记_2024.txt', `<div class="doc-paper">
+      <p><b>11月30日</b><br>老周拿来一卷河泥里的东西。海鸥4B，快门锈死了，片芯居然是好的。<br>洗出来那晚，我在暗房坐到天亮。三十六格。第三十六格，是一张脸。<span class="red-pen">是他。火机还是那个火机。</span></p>
+      <p><b>12月20日</b><br>卷41扫进机器了。编号用了她的工号：041。手抖，显影液洒了半瓶。<br>台账口令还是暗房门后那串。小路，师傅没本事了，剩下的路你替我走。<br><span class="red-pen">相纸盒的夹层别拆。让它跟店一起走。</span><br>信在柜台抽屉里。邮资我贴好了。</p></div>`);
+    XY.addList('docs', 'diary24');
+    grant('c_diary24', '师傅的最后一篇日记：卷41是她，信在柜台抽屉里。');
+  },
+  bijia() {
+    viewer('笔录_1998_甲.jpg（讯问笔录·扫描）', `
+      <div class="doc-paper" style="font-size:12.5px">
+        <div style="text-align:center"><span class="stamp-red">江山市公安局 城 西 分 局</span></div>
+        <p style="margin-top:10px"><b>讯问笔录（节录·第1-2页）</b>　时间：1999年1月8日　被讯问人：严某英，女，31岁，纺织厂出纳</p>
+        <p>问：集资款的去向，你说厂办秦某有利拿去做"设备更新"，有单据吗？<br>
+        答：……单子在白秀娟手里。她拍了照。她跟我说过：万一她出事，让我找照相馆的沈师傅。<br>
+        问：12月18日之后你和白秀娟通过电话吗？<br>
+        答：19号中午她给我打过一个。她说"凤英，钱的事有底了，明天给我回话"。<span style="color:#a33">之后再打，就关机了。</span></p>
+        <p style="color:#777;font-size:11px">（第2页页脚有铅笔小字：此卷原件共 <b>3</b> 页。）</p>
+      </div>`);
+    grant('c_clip_jiz', '笔录甲：白秀娟拍下了集资款的账，出事前一天中午她还给严凤英打过电话。');
+  },
+  bijib() {
+    const g2ok = XY.load().boardOK.G2;
+    viewer('笔录_1998_乙.jpg（第2页）', `
+      <div class="doc-paper" style="font-size:12.5px">
+        <p><b>讯问笔录（第2页·续）</b></p>
+        <p>问：秦某有利当时怎么处理的？<br>答：停职反省。过年之后……就恢复了。厂子改制，他带头买了设备，后来去了惠丰实业。<br>
+        <span style="color:#a33">（此页左上角有两枚订书钉孔，纸边有撕扯纤维。第1页页脚写"共3页"，此卷现存2页。）</span></p>
+        ${g2ok ? `<p style="color:#a33;border-top:1px dashed #bbb;margin-top:8px;padding-top:8px">（放大镜下，页脚还有一行几乎磨掉的铅笔字——一个手机号：139 7xxx 4417。字迹：周。）</p>
+        <div style="text-align:center;margin-top:8px"><button class="xp-btn" data-clue="c_zhounum" data-ct="页脚铅笔字：老周的手机号。可以在"电话"里拨了。">看清页脚（记入案卷）</button></div>`
+        : `<p style="color:#777;font-size:11px">（页脚似乎还有铅笔痕迹，太淡了，看不清。也许需要先弄清楚——当年到底是谁、在哪一夜来过店里。）</p>`}
+      </div>`);
+    bindClueBtns();
+    grant('c_p3', '笔录乙：讯问笔录原件共3页，现存2页——第3页被人抽走了。');
+  },
+  clip99() {
+    viewer('剪报_1999.jpg', `
+      <div class="doc-paper" style="font-size:12.5px">
+        <div style="text-align:center;font-size:16px;letter-spacing:3px">江 城 晚 报　1999年1月7日</div>
+        <p style="margin-top:10px"><b>纺织厂职工集资款案情况通报</b></p>
+        <p>我厂1998年职工集资370万元一案，经查：厂原出纳白某娟涉嫌卷款潜逃，于去岁12月19日失踪；本月5日其遗物于城西河段发现，警方认定意外落水，不予刑事立案。<br>
+        原厂办主任秦某利负有管理责任，被<span style="color:#a33">停职反省</span>；鉴于其"积极配合"，年后调任改制企业惠丰实业任副总。<br>
+        集资款清退比例：初步核定 <span style="color:#a33">三成七</span>。</p>
+        <p style="color:#777;font-size:11px">（报纸边角有师傅的红笔圈注：三成七。九百多户。）</p>
+      </div>`);
+    grant('c_clip', '剪报：白秀娟被认定为"卷款潜逃、意外落水"；秦有利停职年后高升惠丰实业。');
+  },
+  yishu() {
+    viewer('遗书草稿.doc（未保存）', `
+      <div class="doc-paper" style="font-size:13px;line-height:2.3">
+        <p>小路：</p>
+        <p>你看到这个文档，说明账合上了。师傅这辈子拍了三万多张人脸，最后学会的是不敢看一张。</p>
+        <p>1998年12月24日夜里，秦有利来店里。他不是来取照片的，他是来对账的。我给了他假的。我保下了真的。<br>
+        我不是英雄。我烧相纸，是因为凤英抱着苗苗在我店里哭了一夜——她的住院押金是秦批的条子，她改口，娃才能上学。<span class="red-pen">我们都被拿住了软处，这不是理由，只是实话。</span></p>
+        <p>抽屉里那封挂号信，收信人写的是省厅的老徐——就是当年便条上要找的徐记者，他后来调了系统。邮资贴好了。<br>
+        我没敢投。我这双手烧过证据，不配。<span class="red-pen">你的手干净。替我投一次。</span></p>
+        <p>钱的事你要是查到这里，也就全明白了：卷41第5格，惠丰的"设备款"，就是全厂人的救命钱。他现在回来"捐"文化馆，拿的是利息。</p>
+        <p style="color:#a33">暗房里没有鬼。只有没洗完的底片。</p>
+        <p style="text-align:right">——沈明礼　2024年12月20日夜</p>
+      </div>`);
+    XY.flag('letterRead', true);
+    grant('c_letter', '遗书草稿：师父请你替他把柜台抽屉里那封挂号信投出去。');
+    refreshDesktopState();
+  },
+  print26() {
+    viewer('白秀娟_补打_第26张.jpg', `
+      <div style="position:relative;text-align:center;background:#111;padding:14px">
+        <img src="assets/img/bai.jpg" style="max-height:420px;filter:grayscale(.15) sepia(.15)">
+        <div style="position:absolute;top:14px;right:26px;width:56px;height:170px;background:linear-gradient(160deg,#7a0d0d,#4d0808);opacity:.8;filter:blur(1px);border-radius:8px"></div>
+      </div>
+      <p style="font-size:12.5px;color:#333;line-height:2.2;margin-top:10px">
+        相纸背面，钢笔字，一笔一划：<br>
+        <span style="font-family:'KaiTi',serif;font-size:15px">"今年也打了。第26张。<br>她该 52 岁了。苗苗的孩子也该会叫人了。<br>—— 2024年12月24日 23:59，机器自己打的，我知道是 timer。就当是她回来拿照片。"</span></p>
+      <p style="font-size:11px;color:#777;margin-top:6px">（打印队列里那条"1998-12-24 23:59"的陈年任务，是师傅设的循环：每年她生日夜里，重打一张她的照片。）</p>`);
+    grant('c_print26', '第26张补打照片：所谓"闹鬼"，是师傅二十六年的生日补打任务。');
+  }
+};
+
+/* ---------------- 回收站 ---------------- */
+const BIN_ITEMS = [
+  {
+    id: 'neg36', name: '卷41_第36格_孤立底片.jpg', icon: '🖼️',
+    desc: '黑色一片。药膜完好。',
+    restoredHtml: `<img src="assets/img/lighterface.jpg" style="width:100%;filter:invert(1) grayscale(1) contrast(1.3) brightness(.75)" id="neg36img">
+      <p style="font-size:11.5px;color:#555;margin-top:8px;line-height:2">底片是负像，肉眼看是黑的。负像要看正，得用<b>明室</b>：反相 + 提亮。</p>`,
+    onRestoreView() { grant('c_neg36', '第36格孤立底片已入档——去明室，反相提亮。'); }
+  },
+  {
+    id: 'sample', name: '印样36_备用小样.jpg', icon: '🖼️',
+    desc: '一整版小样，边角有火燎痕迹。',
+    restoredHtml: `<div style="text-align:center;background:#161310;padding:12px">
+      <div class="contact-sheet" style="grid-template-columns:repeat(6,1fr)">
+        ${Array.from({ length: 36 }, (_, i) => {
+          const n = i + 1;
+          if (n === 36) return `<div class="cs-cell"><span class="no">36</span><img src="assets/img/lighterface.jpg" style="opacity:.18"></div>`;
+          if (n === 5) return `<div class="cs-cell"><span class="no">5</span><img src="assets/img/ledgerpage.jpg"></div>`;
+          return `<div class="cs-cell"><span class="no">${n}</span><img src="${n % 2 ? 'assets/img/river.jpg' : 'assets/img/shopinterior.jpg'}"></div>`;
+        }).join('')}
+      </div></div>
+      <p style="font-size:11.5px;color:#555;margin-top:8px;line-height:2">备用小样（火燎痕迹）。第36格位置有一层极淡的潜影——纸烧了，影没烧透。</p>`,
+    onRestoreView() { grant('c_sample', '备用小样：第36格有烧剩的潜影。'); }
+  },
+  {
+    id: 'note', name: '便条_白秀娟.jpg', icon: '📄',
+    desc: '皱。铅笔字。有背面向下的一张。',
+    restoredHtml: `
+      <div style="background:#f7f2e2;border:1px solid #b8ad8a;padding:20px;font-family:'KaiTi',serif;font-size:15px;line-height:2.2;color:#333">
+        沈师傅：<br>卷里的东西会要人命。您别沾手，原样收好。<br>万一我出不去，<b>交给省报的徐惟真记者，千万别交本地</b>。<br>拜托了。秀娟
+      </div>
+      <div id="noteBackArea" style="margin-top:10px">
+        <p style="font-size:11.5px;color:#777">背面朝下扣着。要读背面，把它放进<b>明室</b>：镜像 + 红通道 + 提对比（铅笔字在红光下会浮出来）。</p>
+      </div>`,
+    onRestoreView() { grant('c_note', '白秀娟的便条：万一出事，交给省报徐惟真，别交本地。'); }
+  },
+  {
+    id: 'burn', name: '烧毁的相纸_残边.jpg', icon: '🖼️',
+    desc: '火钳没能夹住的半寸。',
+    restoredHtml: `<div style="background:#0c0a08;padding:12px;text-align:center">
+        <img src="assets/img/scarf.jpg" style="max-height:260px;filter:sepia(.5) brightness(.6) contrast(1.3)">
+      </div>
+      <p style="font-size:12px;color:#555;margin-top:8px;line-height:2">相纸的残边。焦边里还认得出一点红——是她脖子上那条围巾的影子，投在第36格的画面边缘。<br>师傅烧相纸那晚，连她的影子一起烧了。</p>`,
+    onRestoreView() { grant('c_burn', '烧毁的残边：第36格边缘，有她围巾的红。'); }
+  }
+];
+function renderBin() {
+  const list = $('#binList'); list.innerHTML = '';
+  BIN_ITEMS.forEach(b => {
+    const restored = XY.inList('binRestored', b.id);
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;align-items:center;gap:12px;padding:9px;border:1px solid #ccc;margin-bottom:7px;background:#fff';
+    d.innerHTML = `<span style="font-size:22px">${b.icon}</span>
+      <div style="flex:1"><div style="font-size:12px;font-weight:bold">${b.name}</div>
+      <div style="font-size:11px;color:#777">${b.desc}</div></div>
+      <button class="xp-btn" ${restored ? 'disabled' : ''}>${restored ? '已还原' : '还原'}</button>`;
+    d.querySelector('button').addEventListener('click', () => {
+      XY.addList('binRestored', b.id);
+      SFX.hdd();
+      renderBin();
+      toast('已还原到 档案库 → 已恢复。');
+    });
+    list.appendChild(d);
+  });
+}
+
+/* ============================================================
+   明室（图像分析）
+   ============================================================ */
+const LT_FILES = [
+  { id: 'neg36', name: '卷41_第36格_孤立底片', need: () => XY.inList('binRestored', 'neg36'), src: 'assets/img/lighterface.jpg', baseFilter: 'invert(1) grayscale(1) contrast(1.3) brightness(.75)', note: '底片负像。' },
+  { id: 'note', name: '便条_白秀娟（背面）', need: () => XY.inList('binRestored', 'note'), src: 'assets/img/shopwindow.jpg', baseFilter: 'sepia(.4) brightness(.9)', note: '背面朝上。铅笔字很淡。', overlay: 'noteback' },
+  { id: 'sheet41', name: '印样36 · 第36格区域', need: () => XY.inList('binRestored', 'sample'), src: 'assets/img/lighterface.jpg', baseFilter: 'invert(1) grayscale(1) brightness(.5) contrast(1.6)', note: '小样第36格，潜影极淡。' },
+  { id: 'darkroom', name: '暗房门后（卷40）', need: () => true, src: 'assets/img/shopinterior.jpg', baseFilter: 'sepia(.5) brightness(.6)', note: '钥匙柜那排。', overlay: 'keys' },
+  { id: 'b19', name: '卷19 · 百日合影（整卷）', need: () => true, src: 'assets/img/shopwindow.jpg', baseFilter: 'grayscale(.2)', note: '1998年12月14日。', overlay: 'scarf' }
+];
+let ltCur = null;
+function refreshLT() {
+  const sel = $('#ltSelect');
+  const files = LT_FILES.filter(f => f.need());
+  sel.innerHTML = files.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+  const keep = files.find(f => f.id === ltCur) ? ltCur : (files[0] && files[0].id);
+  ltCur = keep;
+  if (keep) sel.value = keep;
+  ltApply();
+}
+function ltApply() {
+  const f = LT_FILES.find(x => x.id === ltCur);
+  if (!f) { $('#ltNote').textContent = '（还没有可分析的文件。先去回收站还原点什么。）'; return; }
+  const bright = +$('#rBright').value, contrast = +$('#rContrast').value, red = +$('#rRed').value;
+  const inv = $('#ltInvert').classList.contains('on'), mir = $('#ltMirror').classList.contains('on');
+  const img = $('#ltImg');
+  img.src = f.src;
+  const redAmount = red / 100;
+  let filter = `${f.baseFilter || ''} brightness(${bright / 100}) contrast(${contrast / 100})`;
+  if (inv) filter += ' invert(1)';
+  if (redAmount > 0) filter += ` sepia(${redAmount}) saturate(${1 + redAmount * 4}) hue-rotate(-30deg)`;
+  img.style.filter = filter;
+  img.style.transform = mir ? 'scaleX(-1) scale(1.08)' : 'scale(1.08)';
+  $('#vBright').textContent = bright + '%';
+  $('#vContrast').textContent = contrast + '%';
+  $('#vRed').textContent = red;
+  $('#ltNote').textContent = f.note || '';
+  /* 隐藏层显影 */
+  const ov = $('#ltOverlay');
+  ov.innerHTML = '';
+  let show = 0;
+  if (f.id === 'neg36' || f.id === 'sheet41') {
+    // 反相 + 足够亮度 → 脸浮现
+    if (inv && bright >= 150 && contrast >= 110) {
+      ov.innerHTML = `<img src="assets/img/lighterface.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:grayscale(1) contrast(1.15)">`;
+      show = Math.min(1, (bright - 150) / 60 + .35);
+    }
+    if (show > 0 && !XY.hasClue('c_face41')) {
+      XY.addClue('c_face41');
+      SFX.drone(3.5, .09);
+      toast('第36格显影：河边、打火机的火光——那张脸，和卷23里厂办主任是同一个人。');
+    }
+  }
+  if (f.id === 'note') {
+    if (mir && red >= 55 && contrast >= 115) {
+      ov.innerHTML = `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(250,244,224,.92)">
+        <div style="font-family:'KaiTi',serif;font-size:15px;color:#333;line-height:2.2;transform:scaleX(-1);text-align:left">
+          省城 · 新闻出版社大院 3-202<br>徐惟真（记者）收 —— 便条背面写的地址
+        </div></div>`;
+      show = 1;
+      if (!XY.hasClue('c_noteback')) { XY.addClue('c_noteback'); toast('便条背面的地址显出来了：省城新闻出版社大院3-202，徐惟真收。'); }
+    }
+  }
+  if (f.id === 'darkroom') { /* 钥匙柜靠放大镜，在 magnifier 逻辑里处理 */ }
+  if (f.id === 'b19') {
+    if (XY.horrorLevel() >= 2) {
+      ov.innerHTML = `<div style="position:absolute;right:12%;bottom:6%;width:34px;height:110px;background:linear-gradient(160deg,rgba(122,13,13,.75),rgba(77,8,8,.75));filter:blur(2px);border-radius:6px"></div>`;
+      show = .5;
+    }
+  }
+  ov.style.opacity = show;
+}
+['rBright', 'rContrast', 'rRed'].forEach(id => $('#' + id).addEventListener('input', ltApply));
+$('#ltInvert').addEventListener('click', e => { e.target.classList.toggle('on'); e.target.style.borderColor = e.target.classList.contains('on') ? '#c22' : ''; ltApply(); });
+$('#ltMirror').addEventListener('click', e => { e.target.classList.toggle('on'); e.target.style.borderColor = e.target.classList.contains('on') ? '#c22' : ''; ltApply(); });
+$('#ltSelect').addEventListener('change', e => { ltCur = e.target.value; ltApply(); });
+$('#ltMag').addEventListener('click', e => { e.target.classList.toggle('on'); });
+const stage = $('#ltStage'), glass = $('#ltMagGlass');
+stage.addEventListener('pointermove', e => {
+  if (!$('#ltMag').classList.contains('on')) { glass.style.display = 'none'; return; }
+  const r = stage.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  glass.style.display = 'block';
+  glass.style.left = (x - 75) + 'px'; glass.style.top = (y - 75) + 'px';
+  glass.style.backgroundImage = `url(${LT_FILES.find(x => x.id === ltCur).src})`;
+  glass.style.backgroundSize = '300%';
+  glass.style.backgroundPosition = `${(x / r.width) * 100}% ${(y / r.height) * 100}%`;
+  /* 钥匙柜线索：暗房图,右侧中部 */
+  if (ltCur === 'darkroom' && x > r.width * .52 && x < r.width * .9 && y > r.height * .28 && y < r.height * .62) {
+    grant('c_key743', '放大镜下：暗房门后钥匙柜，台账柜钥匙牌 743。');
+  }
+});
+stage.addEventListener('pointerleave', () => glass.style.display = 'none');
+
+/* ============================================================
+   台账
+   ============================================================ */
+const LEDGER_ROWS = [
+  { d: '1998-11-30', no: '单0157', who: '惠丰实业（单位月结）', item: '厂区冬修·冲扩 300 张', take: '秦有利（代签）', note: '单位挂账' },
+  { d: '1998-12-14', no: '单0192', who: '严凤英', item: '百日照 1 卷 + 放大 2 张', take: '严凤英', note: '苗苗百日' },
+  { d: '1998-12-18', no: '——', who: '（代收邮件）', item: '来件 1 卷，无单号，未收费', take: '沈明礼', note: '牛皮纸包，无寄件人' },
+  { d: '1998-12-24', no: '——', who: '秦', item: '取相片 2 张', take: '秦（字迹潦草）', note: '非营业时间 23:41' },
+  { d: '2024-11-28', no: '扫40', who: '沈明礼', item: '卷40 上机扫描', take: '——', note: '夜里 22:11' },
+  { d: '2024-11-30', no: '扫41', who: '沈明礼', item: '卷41 上机扫描', take: '——', note: '编号：工号041' }
+];
+$('#ledgerGo').addEventListener('click', () => {
+  BruteGuard.tryGate($('#ledgerPwd').value, ['743'],
+    () => { $('#ledgerGate').style.display = 'none'; $('#ledgerApp').style.display = 'block';
+            XY.flag('ledger', true); grant('c_ledger_open', '台账打开了。检索1996-2006年的取件记录。');
+            SFX.blip(520, .08, .06); },
+    (l) => { $('#ledgerErr').textContent = '口令不对。还剩 ' + l + ' 次。'; $('#ledgerErr').style.display = 'block'; },
+    (s) => { $('#ledgerErr').textContent = '系统锁定 ' + s + ' 秒。'; $('#ledgerErr').style.display = 'block'; });
+});
+$('#ledgerPwd').addEventListener('keypress', e => { if (e.key === 'Enter') $('#ledgerGo').click(); });
+function ledgerQuery(kw) {
+  const rows = LEDGER_ROWS.filter(r => !kw || Object.values(r).some(v => String(v).includes(kw)));
+  $('#qStatus').textContent = `检索完成：${rows.length} 条记录。`;
+  $('#qResult').innerHTML = rows.length ? `
+    <table><tr><th>日期</th><th>单号</th><th>客户/单位</th><th>项目</th><th>取件人</th><th>备注</th></tr>
+    ${rows.map(r => `<tr><td>${r.d}</td><td>${r.no}</td><td>${r.who}</td><td>${r.item}</td><td>${r.take}</td><td>${r.note}</td></tr>`).join('')}
+    </table>` : '<div class="ledger-line">无匹配记录。</div>';
+  if (kw.includes('白')) grant('c_receipt', '台账 12-18：代收无单邮件一卷——她的胶卷寄到了店里。');
+  if (kw === '秦' || kw.includes('秦')) grant('c_qin_pickup', '台账 12-24 23:41：非营业时间，"秦"取走相片两张。');
+  if (kw.includes('严') || kw.includes('苗')) grant('c_yan', '台账 12-14：严凤英取苗苗百日照——她不是坏人，她也被拿住了。');
+}
+$('#qGo').addEventListener('click', () => { SFX.hdd(); setTimeout(() => ledgerQuery($('#qKeyword').value.trim()), 500); });
+$('#qKeyword').addEventListener('keypress', e => { if (e.key === 'Enter') $('#qGo').click(); });
+$('#qAll').addEventListener('click', () => { SFX.hdd(); ledgerQuery(''); });
+
+/* ============================================================
+   电话
+   ============================================================ */
+const CONTACTS = [
+  { id: 'chaiqian', name: '旧改指挥部（拆迁办）', num: '0793-6682xxx', need: () => XY.flag('readGov'), call: CALL_chaiqian },
+  { id: 'liushou', name: '纺织厂留守处', num: '0793-8810xxx', need: () => XY.hasClue('c_clip'), call: CALL_liushou },
+  { id: 'zhou', name: '周建国（老周）', num: '139 7xxx 4417', need: () => XY.hasClue('c_zhounum'), call: CALL_zhou }
+];
+function renderPhoneBook() {
+  const box = $('#phoneBook'); box.innerHTML = '';
+  CONTACTS.forEach(c => {
+    const ok = c.need();
+    const d = document.createElement('div');
+    d.className = 'tape' + (ok ? '' : ' locked');
+    d.innerHTML = `<div class="t-name">${ok ? '☎ ' : '🔒 '}${c.name}</div><div class="t-sub">${ok ? c.num : '号码未知（线索未到）'}</div>`;
+    if (ok) d.addEventListener('click', () => c.call());
+    box.appendChild(d);
+  });
+  const pad = $('#phonePad'); pad.innerHTML = '';
+  '123456789*0#'.split('').forEach(k => {
+    const b = document.createElement('button');
+    b.className = 'phone-key'; b.textContent = k;
+    b.addEventListener('click', () => SFX.dtmf(k));
+    pad.appendChild(b);
+  });
+}
+function phoneSay(lines, done) {
+  const lcd = $('#phoneLcd');
+  lcd.innerHTML = '';
+  let i = 0;
+  (function next() {
+    if (i >= lines.length) { done && done(); return; }
+    const p = document.createElement('div');
+    p.style.marginBottom = '6px';
+    lcd.appendChild(p);
+    typeText(p, lines[i], 26, () => { i++; setTimeout(next, 420); });
+  })();
+}
+function CALL_chaiqian() {
+  openWin('win-phone');
+  SFX.dtmf('6'); setTimeout(() => SFX.dtmf('6'), 160); setTimeout(() => SFX.dtmf('8'), 320);
+  phoneSay([
+    '> 正在拨号 0793-6682xxx ……',
+    '> 通了。',
+    '接线员：“旧改指挥部。哪位？”',
+    '你：“我是长明照相馆的。想问一下31号签约的事。”',
+    '接线员：“长明……哦，沈师傅那个铺子。合同都拟好了，31号上午签约仪式，惠丰商贸秦总亲自到场。”',
+    '你：“能缓几天吗？店里的东西还没清完。”',
+    '接线员：“不能。1月5号机械进场，铺子拆了，里面的东西就当无主废弃物处理了。就这样啊。”',
+    '> 挂断。'
+  ], () => { XY.flag('readGov', true); });
+}
+function CALL_liushou() {
+  openWin('win-phone');
+  phoneSay([
+    '> 正在拨号 0793-8810xxx ……',
+    '> 响了很久。',
+    '老人：“……留守处。找谁？”',
+    '你：“您好，我想查1998年集资款的清退档案。”',
+    '老人：“厂子2003年就没了。账、地皮，全都折给了惠丰抵债。档案？在人家保险柜里躺着呢。”',
+    '老人：“小伙子，听一句劝。那年头的事，档案比人活得久，可人熬不过档案。”',
+    '> 挂断。'
+  ]);
+}
+function CALL_zhou() {
+  openWin('win-phone');
+  SFX.dtmf('1'); setTimeout(() => SFX.dtmf('3'), 150); setTimeout(() => SFX.dtmf('9'), 300);
+  phoneSay([
+    '> 正在拨号 139 7xxx 4417 ……',
+    '> 一下就通了。像他一直把手机放在手边。',
+    '你：“周队，我是路明。沈师傅的徒弟。”',
+    '老周：“……小路。”（很长时间的呼吸声）' ,
+    '老周：“机器你开了。账你看完了。”',
+    '你：“第3页。1999年1月8日严凤英的笔录，只有两页，页脚写着共3页。”',
+    '老周：“第3页是我亲手钉上去的。第二天，卷宗送上去，回来就没了。二十六年，我做的是明白的哑巴。”',
+    '老周：“第3页上，严凤英说出了12月24日夜里来店里的人，和车牌。她后来翻供，因为娃的上学名额在人家手里。”',
+    '老周：“小路，我71了，肺上的东西医生说年内见分晓。我等这通电话等了26年。”',
+    '老周：“省厅纪委的老徐，就是当年那条子上的徐记者。地址在师傅信封上，对得上。31号签约仪式，秦有利会到场。”',
+    '老周：“东西寄到省里，或者，你亲手带过去。这一次，我作证。我这条命，正好用在这个上头。”',
+    '> 通话结束。他把挽尊的机会，留给了你。'
+  ], () => {
+    grant('c_zhou_call', '老周：第3页记录了那夜来客与车牌；他愿意作证。');
+    XY.addList('calls', 'zhou');
+    refreshDesktopState();
+  });
+}
+
+/* ============================================================
+   录音带
+   ============================================================ */
+const TAPES = [
+  {
+    id: 'A', name: '磁带A · 县人民广播电台（1999-01-06 晚间新闻）', sub: '师傅标了一颗星：**生日在这里。**', locked: () => false,
+    text: `「……另据本台消息，城西区纺织厂职工集资款案中失踪人员白秀娟，经警方确认于本月5日意外落水身亡，尸体已经家属辨认火化。白秀娟，生于1972年12月24日，终年26岁……警方提醒市民，年关岁末请注意安全……」
+「……下面重播：我县深入开展严厉打击非法集资……」`,
+    after() { grant('c_tapeA', '磁带A：白秀娟生于12月24日——卷41的锁，是她的生日。'); }
+  },
+  {
+    id: 'B', name: '磁带B · 拆迁区域广播（2024-12 循环播放）', sub: '店门口大喇叭每天放八遍。', locked: () => false,
+    text: `「……本次旧城改造范围为沿河路东段历史街区。长明照相馆等12处产权房屋，请产权人或继承人在12月31日前办理签约手续。改造工程由惠丰商贸集团全额捐建的'民俗文化馆'将于签约后动工……
+惠丰集团董事长秦有利先生表示：留住城市的记忆，是企业家的责任……」`,
+    after() { grant('c_tapeB', '磁带B：拆掉这条街的钱，是他当年卷走的钱。'); }
+  },
+  {
+    id: 'C', name: '磁带C · （没有标签）', sub: '锁着的抽屉里。师傅的字条：等账合上两栏，再听。', locked: () => Object.values(XY.load().boardOK).filter(Boolean).length < 2,
+    text: `（很长的静默。只有雨。）`,
+    require2: true,
+    text2: `「……小路，是我。这盘带是留给你的。
+
+1998年12月24号夜里十一点四十，秦有利来敲店门。三下，停，再三下——这个敲门法，是当年厂里摄影小组跟我学的，学的人里就有他。他进门先看暗房，再数钱。我给了他重拍的干净账页。他拍拍我的肩膀说，沈师傅是个明白人。
+
+我不是明白人。我是胆小的人。
+
+凤英的娃那年要中考。她的住院押金、娃的学额，都捏在人家手心里。她改了口供，我不怪她。我烧了第三十六张相纸——烧纸的火钳，我现在都攥得出声音来。
+
+小路，这二十六年，每年12月24号夜里11点59，我都让机器重打一张她的照片。人家当这店里闹鬼。鬼是我。烧不掉的也是我。
+
+柜台抽屉里那封信，我贴好了邮资，写到一半手就不行了。你的手干净。替我把它寄了。寄给省厅纪委的老徐，地址在便条背面，两个对得上。
+
+底片在相纸盒夹层。别拆。让店带着它走，或者——带着它走的人，换成你。
+
+（雨声。磁带到头的沙沙声。咔哒。）」`,
+    after() { grant('c_tapeC', '磁带C：师傅的口述——每年12月24日的"闹鬼"，是他。'); }
+  }
+];
+function renderTapes() {
+  const row = $('#tapeRow'); row.innerHTML = '';
+  TAPES.forEach(t => {
+    const ok = !t.locked();
+    const heard = XY.inList('tapes', t.id);
+    const d = document.createElement('div');
+    d.className = 'tape' + (ok ? '' : ' locked');
+    d.innerHTML = `<div class="t-name">${heard ? '▶ 已听 · ' : '▶ '}${t.name}</div><div class="t-sub">${t.sub}</div>`;
+    d.addEventListener('click', () => playTape(t));
+    row.appendChild(d);
+  });
+}
+function playTape(t) {
+  if (t.locked()) { toast(t.sub); return; }
+  const scr = $('#tapeScreen');
+  scr.style.display = 'block';
+  scr.textContent = '';
+  SFX.ensure();
+  /* 电流噪声 */
+  SFX.drone(2, .04);
+  const fullText = (t.require2 ? t.text + '\n（……侧面B面。按下播放。）\n\n' + t.text2 : t.text);
+  typeText(scr, fullText, 26, () => {
+    XY.addList('tapes', t.id);
+    t.after && t.after();
+    renderTapes();
+    refreshDesktopState();
+  });
+}
+
+/* ============================================================
+   IE
+   ============================================================ */
+$$('#ieHome .clue-chip').forEach(ch => ch.addEventListener('click', () => {
+  const url = ch.dataset.url;
+  $('#ieHome').style.display = 'none';
+  $('#ieFrame').style.display = 'block';
+  $('#ieBack').style.display = 'inline-block';
+  $('#ieFrame').src = url;
+  if (url.includes('news')) grant('c_news2006', '2006年的新闻：开张日期1962年7月1日；资助数码化项目的，是惠丰商贸秦有利。');
+  if (url.includes('bbs')) { grant('c_miao_post', '论坛里，严苗苗在找1998年的真相。有人回帖：照相馆的老沈知道些什么。'); XY.flag('readBbs', true); }
+  if (url.includes('gov')) { grant('c_qin_now', '公示：签约仪式12月31日，捐资人惠丰集团秦有利。'); XY.flag('readGov', true); }
+}));
+$('#ieBack').addEventListener('click', () => {
+  $('#ieHome').style.display = 'flex'; $('#ieFrame').style.display = 'none'; $('#ieBack').style.display = 'none';
+  $('#ieFrame').src = 'about:blank';
+});
+
+/* ============================================================
+   档案板（师傅的账）
+   ============================================================ */
+const BOARD_DEF = {
+  G1: {
+    title: '钱', slots: [
+      { c: 'c_f05', text: '第二本账：集资款分批汇入"惠丰实业（秦）"' },
+      { c: 'c_receipt', text: '台账 12-18：她的胶卷代收进店（无单号）' },
+      { c: 'c_clip', text: '剪报：370万集资案，秦"停职反省"年后高升' }
+    ]
+  },
+  G2: {
+    title: '人', slots: [
+      { c: 'c_face41', text: '第36格显影：河边持打火机的脸 = 秦有利' },
+      { c: 'c_qin_pickup', text: '台账 12-24 23:41：非营业时间"秦"取件' },
+      { c: 'c_p3', text: '笔录原件共3页，现存2页——第3页被抽走' }
+    ]
+  },
+  G3: {
+    title: '纸', slots: [
+      { c: 'c_noteback', text: '便条背面地址：省城·新闻出版社大院3-202 徐惟真' },
+      { c: 'c_sample', text: '备用小样：第36格烧剩的潜影仍在' },
+      { c: 'c_tapeC', text: '磁带C：他为什么沉默了二十六年' }
+    ]
+  }
+};
+const BOARD_ECHO = {
+  G1: "师傅批注：「钱的形状查清了。370万救命钱，绕一圈变成他的『设备款』。她拍下的不是账，是罪。」",
+  G2: "师傅批注：「人是他。那夜的敲门声我听了二十六年。三下，停，再三下。」",
+  G3: "师傅批注：「纸都在。我烧了相纸，烧不掉小样；我哑了二十六年，磁带在说。剩下的，交给你的手。」"
+};
+function boardAvailableClues() {
+  const ids = ['c_f05', 'c_receipt', 'c_clip', 'c_face41', 'c_qin_pickup', 'c_p3', 'c_noteback', 'c_sample', 'c_tapeC'];
+  return ids.filter(id => XY.hasClue(id));
+}
+function renderBoard() {
+  const st = S();
+  ['G1', 'G2', 'G3'].forEach(g => {
+    const slotsEl = document.querySelector(`.board-slots[data-g="${g}"]`);
+    slotsEl.innerHTML = '';
+    BOARD_DEF[g].slots.forEach((s, i) => {
+      const placed = st.board[g][i];
+      const d = document.createElement('div');
+      d.className = 'board-slot' + (st.boardOK[g] ? ' filled' : placed ? ' filled' : '');
+      d.textContent = placed ? BOARD_DEF[g].slots.find(x => x.c === placed)?.text || placed : '（空格——钉入一条线索）';
+      d.dataset.g = g; d.dataset.i = i;
+      if (!st.boardOK[g]) {
+        d.addEventListener('click', () => {
+          if (window._boardPick) {
+            const wrong = window._boardPick !== s.c;
+            st.board[g][i] = window._boardPick; XY.save();
+            window._boardPick = null;
+            if (checkGroup(g)) { /* 锁定 */ }
+            else if (wrong) {
+              d.classList.add('shake');
+              setTimeout(() => d.classList.remove('shake'), 400);
+              toast('钉得不对。这一格要的，是另一种形状的证据。');
+            }
+            renderBoard();
+          } else {
+            toast('先在下面"线索筐"里点选一条线索。');
+          }
+        });
+      }
+      slotsEl.appendChild(d);
+    });
+  });
+  const pool = $('#boardPool');
+  pool.innerHTML = '';
+  const avail = boardAvailableClues();
+  if (!avail.length) pool.innerHTML = '<span style="color:#888;font-size:11px">（还没有可钉入的线索。先去明室、台账、回收站、录音带里把证据收齐。）</span>';
+  const names = {};
+  ['G1', 'G2', 'G3'].forEach(g => BOARD_DEF[g].slots.forEach(s => names[s.c] = s.text));
+  avail.forEach(id => {
+    const used = ['G1', 'G2', 'G3'].some(g => st.board[g].includes(id));
+    const chip = document.createElement('span');
+    chip.className = 'clue-chip' + (used ? ' used' : '');
+    chip.textContent = names[id] || id;
+    chip.addEventListener('click', () => {
+      window._boardPick = id;
+      toast('已捏起线索——现在去点一个空格。');
+    });
+    pool.appendChild(chip);
+  });
+}
+function checkGroup(g) {
+  const st = S();
+  const want = BOARD_DEF[g].slots.map(s => s.c);
+  const got = st.board[g];
+  if (want.every((c, i) => got[i] === c)) {
+    st.boardOK[g] = true; XY.save();
+    XY.advanceNight(g);
+    const m = showModal(`
+      <h3>账，合上了一栏</h3>
+      <p class="red-pen" style="font-family:'KaiTi',serif;font-size:15px;line-height:2.2">${BOARD_ECHO[g]}</p>
+      <div class="btn-row"><button class="xp-btn" onclick="this.closest('.xy-modal-wrap').remove()">合上这一栏</button></div>
+    `);
+    SFX.theme();
+    refreshDesktopState();
+    return true;
+  }
+  return false;
+}
+
+/* ============================================================
+   打印队列
+   ============================================================ */
+function renderPrintQ() {
+  const st = S();
+  const rows = [
+    { n: '百日照·补打（循环任务）', t: '1998-12-24 23:59', s: st.flags.printDone ? '已完成' : st.boardOK.G1 ? '打印中…' : '已发送' },
+    { n: '扫描驱动安装.log', t: '2006-08-12 09:40', s: '已完成' },
+    { n: '卷40 · 暗房.tif', t: '2024-11-28 22:11', s: '已完成' },
+    { n: '卷41 · 白.tif', t: '2024-11-30 23:47', s: '已完成' }
+  ];
+  $('#pqBody').innerHTML = rows.map(r => `<tr><td style="padding:5px">${r.n}</td><td style="padding:5px">${r.t}</td>
+    <td style="padding:5px;text-align:center;color:${r.s === '打印中…' ? '#c22' : r.s === '已完成' ? '#2a2' : '#666'}">${r.s}</td></tr>`).join('');
+  if (!st.flags.pqSeen) {
+    XY.flag('pqSeen', true);
+    grant('c_print1998', '打印队列：一条1998年12月24日23:59的补打任务，"已发送"——二十六年前发送的任务？');
+  }
+  if (st.boardOK.G1 && !st.flags.printDone) {
+    $('#pqHint').style.display = 'block';
+    $('#pqHint').innerHTML = '那条 1998 年的任务开始动了。<span class="red-pen">（这不是 26 年前能有的无线任务。是师傅后来设的循环。）</span> 等它打完……';
+    setTimeout(() => {
+      XY.flag('printDone', true);
+      renderPrintQ();
+      SFX.hdd(); SFX.drone(3, .06);
+      toast('打印完成。档案库 → 文档 多了一份新文件。');
+    }, 12000);
+  } else if (st.flags.printDone) {
+    $('#pqHint').style.display = 'block';
+    $('#pqHint').textContent = '队列空闲。最后一个任务完成于今晚。';
+  }
+}
+
+/* ============================================================
+   挂号信 / 结局
+   ============================================================ */
+function finaleReady() {
+  const st = S();
+  return st.boardOK.G1 && st.boardOK.G2 && st.boardOK.G3 && XY.hasClue('c_face41') && XY.flag('letterRead');
+}
+function allSideDone() {
+  const st = S();
+  return st.tapes.length >= 3 && XY.inList('binRestored', 'neg36') && XY.inList('binRestored', 'note')
+    && XY.inList('binRestored', 'sample') && XY.inList('binRestored', 'burn')
+    && XY.hasClue('c_zhou_call') && XY.hasClue('c_print26');
+}
+function refreshDesktopState() {
+  /* 遗书草稿出现 */
+  if (Object.values(S().boardOK).filter(Boolean).length >= 3 && !XY.flag('letterDraft')) {
+    XY.flag('letterDraft', true);
+    toast('档案库 → 文档：多了一份"遗书草稿.doc"。');
+  }
+  /* 挂号信图标 */
+  if (finaleReady() && !document.querySelector('[data-app="letter"]')) {
+    const d = document.createElement('div');
+    d.className = 'dicon'; d.dataset.app = 'letter';
+    d.innerHTML = '<div class="ic">✉️</div><div class="lb">挂号信<br>（未寄出）</div>';
+    $('#icons').appendChild(d);
+    d.addEventListener('click', () => d.classList.add('selected'));
+    d.addEventListener('dblclick', () => launch('letter'));
+    d.addEventListener('touchend', e => { e.preventDefault(); launch('letter'); }, { passive: false });
+    banner('柜台抽屉开了。里面有封贴好邮资的挂号信。');
+  }
+  applyHorror();
+  renderBoard();
+}
+function renderLetter() {
+  $('#letterPaper').innerHTML = `
+    <p><b>收件人：</b>省纪委监委　徐惟真（转）</p>
+    <p><b>内件：</b>卷41底片复制件、印样、台账/笔录复制件、本信</p>
+    <hr style="border:none;border-top:1px dashed #bbb;margin:12px 0">
+    <p style="font-family:'KaiTi',serif;font-size:14.5px;line-height:2.2">徐记者：<br>
+    一封迟了二十六年的信。1998年12月19日失踪的纺织厂出纳白秀娟，不是卷款，是灭口。钱、人、纸，账我都替你理在随信的册子里。<br>
+    我的徒弟路明会把它投进邮筒。他手干净。<br>
+    沈明礼（代笔于病中）</p>`;
+  const act = $('#letterActions');
+  act.innerHTML = '';
+  const b = document.createElement('button');
+  b.className = 'xp-btn'; b.style.padding = '10px 26px'; b.style.fontSize = '13px';
+  b.textContent = '披上外套，走到街口，把它投进绿色的邮筒';
+  b.addEventListener('click', () => {
+    const m = showModal(`
+      <h3>街口 · 绿邮筒</h3>
+      <p>雨小了。邮筒的投信口冰凉。</p>
+      <p style="margin-top:8px;color:#555">（这一投，就收不回来了。）</p>
+      <div class="btn-row">
+        <button class="xp-btn" id="sendIt">投进去</button>
+        <button class="xp-btn" id="notYet">再攥一会儿</button>
+      </div>`);
+    m.el.querySelector('#sendIt').addEventListener('click', () => {
+      const st = S();
+      let end;
+      if (!st.clues.includes('c_zhou_call')) end = 'end2';
+      else end = allSideDone() ? 'end4' : 'end1';
+      XY.load().ended = end; XY.save();
+      document.body.style.transition = 'opacity 1s'; document.body.style.opacity = 0;
+      setTimeout(() => location.href = end + '.html', 1000);
+    });
+    m.el.querySelector('#notYet').addEventListener('click', () => m.close());
+  });
+  act.appendChild(b);
+}
+
+/* ---------------- 开始菜单 ---------------- */
+$('#startBtn').addEventListener('click', e => { e.stopPropagation(); $('#startMenu').classList.toggle('show'); SFX.blip(520, .05, .05); });
+document.addEventListener('click', e => {
+  if (!e.target.closest('#startMenu') && !e.target.closest('#startBtn')) $('#startMenu').classList.remove('show');
+});
+$('#smAbout').addEventListener('click', () => {
+  showModal(`<h3>这台机器</h3>
+    <p>组装于2006年8月。Celeron D / 512M 内存 / 40G 硬盘。<br>
+    2006年起，沈明礼用它扫描了店里 1962-2006 年的底片存档，并继续记录取件台账至店铺歇业。</p>
+    <p style="margin-top:8px;color:#666">最后登录：2024-12-24 23:59（timer）</p>
+    <div class="btn-row"><button class="xp-btn" onclick="this.closest('.xy-modal-wrap').remove()">好</button></div>`);
+});
+$('#smReset').addEventListener('click', () => {
+  const m = showModal(`<h3>重新开始？</h3><p>清空全部存档与线索，从头来过。</p>
+    <div class="btn-row"><button class="xp-btn" id="yesReset">清空并重新开始</button><button class="xp-btn" id="noReset">先不了</button></div>`);
+  m.el.querySelector('#yesReset').addEventListener('click', () => { XY.reset(); location.href = 'index.html'; });
+  m.el.querySelector('#noReset').addEventListener('click', () => m.close());
+});
+$('#smShutdown').addEventListener('click', () => {
+  if (finaleReady()) {
+    const m = showModal(`<h3>关机之前</h3>
+      <p>柜台抽屉里那封挂号信还躺在这里。师傅的字：<span class="red-pen">"你的手干净。替我投一次。"</span></p>
+      <p style="margin-top:8px">31 号之后，这间店、这台机器、连同没寄出的信，都会一起消失。</p>
+      <div class="btn-row">
+        <button class="xp-btn" id="goLetter">去拿信</button>
+        <button class="xp-btn" id="shutdownAnyway">还是关机吧</button>
+      </div>`);
+    m.el.querySelector('#goLetter').addEventListener('click', () => { m.close(); launch('letter'); });
+    m.el.querySelector('#shutdownAnyway').addEventListener('click', () => { m.close(); doShutdown(); });
+  } else {
+    const m = showModal(`<h3>关闭计算机？</h3>
+      <p>有些东西还没看完。账只合上了 ${Object.values(S().boardOK).filter(Boolean).length} 栏。</p>
+      <p style="margin-top:8px;color:#888">（真的现在走吗？）</p>
+      <div class="btn-row">
+        <button class="xp-btn" id="stay">再看一会儿</button>
+        <button class="xp-btn" id="leave">关机离开</button>
+      </div>`);
+    m.el.querySelector('#stay').addEventListener('click', () => m.close());
+    m.el.querySelector('#leave').addEventListener('click', () => { m.close(); doShutdown(); });
+  }
+});
+function doShutdown() {
+  XY.load().ended = 'end3'; XY.save();
+  document.body.style.transition = 'opacity 1.2s'; document.body.style.opacity = 0;
+  setTimeout(() => location.href = 'end3.html', 1200);
+}
+
+/* ---------------- 启动 ---------------- */
+if (XY.flag('ledger')) { $('#ledgerGate').style.display = 'none'; $('#ledgerApp').style.display = 'block'; }
+document.addEventListener('xy:clue', refreshDesktopState);
+setTimeout(() => {
+  banner('12月25日夜 · 长明照相馆里屋。距签约 6 天。');
+  if (S().night === 1) {
+    showModal(`<h3>里屋 · 开机后</h3>
+      <p>风扇转起来，像老人咳嗽着坐起身。桌面上有九个图标——师傅把整个店都装进了这台机器。</p>
+      <p style="margin-top:8px;line-height:2">从哪开始都行：<b>档案库</b>里是扫描的底片和文档；<b>台账</b>记着 1996-2006 每一单生意；<b>录音带</b>和 <b>IE 缓存</b>里存着两个时代的声音。<br>
+      看不懂的东西，放进<b>明室</b>里放大、反相、显影。</p>
+      <p style="margin-top:8px;color:#a33">师傅日记里说，这台机器里有一本"账"。<b>（桌面：师傅的账）</b>——把线索钉进格子里，是这台机器留给你的路。</p>
+      <div class="btn-row"><button class="xp-btn" onclick="this.closest('.xy-modal-wrap').remove()">开始翻找</button></div>`);
+  }
+  refreshDesktopState();
+  applyHorror();
+}, 900);
+</script>
+</body>
+</html>
